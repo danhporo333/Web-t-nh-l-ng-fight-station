@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  STAFF
+}
+
+enum ShiftCode {
+  MORNING
+  AFTERNOON
+}
+
+enum AdjustmentType {
+  BONUS
+  PENALTY
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique @db.VarChar(50)
+  passwordHash String   @map("password_hash") @db.VarChar(100)
+  fullName     String   @map("full_name") @db.VarChar(100)
+  role         Role     @default(STAFF)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  monthlyRates MonthlyRate[]
+  workEntries  WorkEntry[]
+  adjustments  Adjustment[]
+
+  @@map("users")
+}
+
+model Shift {
+  id           Int       @id @default(autoincrement())
+  code         ShiftCode @unique
+  name         String    @db.VarChar(50)
+  startTime    String    @map("start_time") @db.VarChar(5)
+  endTime      String    @map("end_time") @db.VarChar(5)
+  defaultHours Decimal   @map("default_hours") @db.Decimal(4, 2)
+  defaultRate  Int       @map("default_rate")
+
+  workEntries WorkEntry[]
+
+  @@map("shifts")
+}
+
+model MonthlyRate {
+  id            Int    @id @default(autoincrement())
+  userId        Int    @map("user_id")
+  month         String @db.Char(7)
+  morningRate   Int    @map("morning_rate")
+  afternoonRate Int    @map("afternoon_rate")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, month])
+  @@map("monthly_rates")
+}
+
+model WorkEntry {
+  id       Int      @id @default(autoincrement())
+  userId   Int      @map("user_id")
+  workDate DateTime @map("work_date") @db.Date
+  shiftId  Int?     @map("shift_id")
+  hours    Decimal  @default(0) @db.Decimal(4, 2)
+  isOff    Boolean  @default(false) @map("is_off")
+  note     String?  @db.VarChar(255)
+
+  user  User   @relation(fields: [userId], references: [id])
+  shift Shift? @relation(fields: [shiftId], references: [id])
+
+  @@unique([userId, workDate, shiftId])
+  @@index([workDate])
+  @@map("work_entries")
+}
+
+model Adjustment {
+  id     Int            @id @default(autoincrement())
+  userId Int            @map("user_id")
+  date   DateTime       @db.Date
+  type   AdjustmentType
+  amount Int
+  reason String         @db.VarChar(255)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, date])
+  @@map("adjustments")
+}

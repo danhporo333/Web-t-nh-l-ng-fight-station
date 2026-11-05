@@ -1,0 +1,184 @@
+# Cơ sở dữ liệu web tính lương Fight Station
+
+Cơ sở dữ liệu MySQL, quản lý bằng Prisma. Schema đầy đủ nằm ở `prisma/schema.prisma`. Tài liệu này mô tả từng bảng, từng cột và các quy tắc dữ liệu.
+
+## Sơ đồ quan hệ
+
+```
+users 1 ──── n monthly_rates
+users 1 ──── n work_entries  n ──── 1 shifts
+users 1 ──── n adjustments
+```
+
+## Bảng `users`
+
+Tài khoản chủ quán và nhân viên.
+
+| Cột | Kiểu | Ràng buộc | Ghi chú |
+| --- | --- | --- | --- |
+| id | INT | khóa chính, tự tăng | |
+| username | VARCHAR(50) | duy nhất, bắt buộc | Tên đăng nhập |
+| password_hash | VARCHAR(100) | bắt buộc | Mật khẩu đã băm bcrypt, không bao giờ lưu chữ thường |
+| full_name | VARCHAR(100) | bắt buộc | Họ tên hiển thị |
+| role | ENUM(OWNER, STAFF) | mặc định STAFF | OWNER là chủ quán |
+| is_active | BOOLEAN | mặc định true | false khi nhân viên nghỉ việc. Không xóa để giữ lịch sử lương |
+| created_at | DATETIME | mặc định hiện tại | |
+
+Quy tắc:
+- Chủ quán tạo tài khoản nhân viên. Không có đăng ký công khai.
+- Tài khoản có `is_active = false` không đăng nhập được.
+
+## Bảng `shifts`
+
+Hai ca cố định và mức mặc định. Chủ quán có thể sửa giờ và mức mặc định.
+
+| Cột | Kiểu | Ràng buộc | Ghi chú |
+| --- | --- | --- | --- |
+| id | INT | khóa chính, tự tăng | |
+| code | ENUM(MORNING, AFTERNOON) | duy nhất | Mã ca |
+| name | VARCHAR(50) | bắt buộc | "Ca sáng", "Ca chiều" |
+| start_time | VARCHAR(5) | bắt buộc | Dạng "HH:MM", ví dụ "07:30" |
+| end_time | VARCHAR(5) | bắt buộc | Dạng "HH:MM", ví dụ "16:00" |
+| default_hours | DECIMAL(4,2) | bắt buộc | Số giờ mặc định của ca |
+| default_rate | INT | bắt buộc | Mức mặc định, đồng/giờ |
+
+Dữ liệu ban đầu (do seed tạo):
+
+| code | name | start_time | end_time | default_hours | default_rate |
+| --- | --- | --- | --- | --- | --- |
+| MORNING | Ca sáng | 07:30 | 16:00 | 8.50 | 24000 |
+| AFTERNOON | Ca chiều | 16:00 | 02:00 | 10.00 | 26000 |
+
+Lưu ý: ca chiều kết thúc lúc 02:00 hôm sau. Ứng dụng tự hiểu điều này, cột `end_time` chỉ để hiển thị.
+
+## Bảng `monthly_rates`
+
+Mức lương của từng nhân viên cho từng ca, trong từng tháng.
+
+| Cột | Kiểu | Ràng buộc | Ghi chú |
+| --- | --- | --- | --- |
+| id | INT | khóa chính, tự tăng | |
+| user_id | INT | khóa ngoại → users.id | |
+| month | CHAR(7) | bắt buộc | Dạng "YYYY-MM", ví dụ "2026-11" |
+| morning_rate | INT | bắt buộc | Đồng/giờ ca sáng của tháng này |
+| afternoon_rate | INT | bắt buộc | Đồng/giờ ca chiều của tháng này |
+
+Ràng buộc:
+- Duy nhất theo cặp `(user_id, month)`. Mỗi người chỉ có một dòng mỗi tháng.
+
+Quy tắc nghiệp vụ:
+- Mức lương **chỉ đổi khi sang tháng mới**. Không đổi giữa tháng.
+- Khi sang tháng mới, hệ thống **chép** dòng của tháng trước sang tháng mới. Chủ quán chỉ sửa người được tăng lương.
+- Nếu nhân viên chưa có dòng của tháng trước, dùng mức mặc định của ca (`shifts.default_rate`).
+
+## Bảng `work_entries`
+
+Chấm công từng ngày. Mỗi ca làm là một dòng. Ngày nghỉ là một dòng riêng với `is_off = true`.
+
+| Cột | Kiểu | Ràng buộc | Ghi chú |
+| --- | --- | --- | --- |
+| id | INT | khóa chính, tự tăng | |
+| user_id | INT | khóa ngoại → users.id | |
+| work_date | DATE | bắt buộc | Ngày **bắt đầu** ca |
+| shift_id | INT | khóa ngoại → shifts.id, có thể trống | Trống khi là ngày Off |
+| hours | DECIMAL(4,2) | mặc định 0 | Số giờ thực tế, chủ quán có thể sửa |
+| is_off | BOOLEAN | mặc định false | true khi là ngày nghỉ |
+| note | VARCHAR(255) | có thể trống | Ví dụ "về sớm lúc 13h" |
+
+Ràng buộc:
+- Duy nhất theo `(user_id, work_date, shift_id)`.
+- Lưu ý: MySQL coi các giá trị NULL là khác nhau, nên với ngày Off (`shift_id` trống) ràng buộc này **không** chặn được hai dòng Off trùng. Ứng dụng phải tự kiểm tra: mỗi người chỉ có tối đa một dòng Off mỗi ngày.
+
+Quy tắc nghiệp vụ:
+- Một người có thể có **tối đa hai dòng** trong một ngày: một dòng ca sáng và một dòng ca chiều.
+- Ca chiều tính vào `work_date` là ngày bắt đầu. Ví dụ ca chiều 05/11 kết thúc lúc 02:00 ngày 06/11 vẫn ghi `work_date = 2026-11-05`.
+- Khi tích một ca, `hours` tự điền bằng `shifts.default_hours`. Chủ quán sửa được.
+- Ngày Off: `is_off = true`, `shift_id` trống, `hours = 0`.
+- Một ngày không được vừa Off vừa có ca. Ứng dụng phải chặn.
+
+## Bảng `adjustments`
+
+Thưởng và phạt.
+
+| Cột | Kiểu | Ràng buộc | Ghi chú |
+| --- | --- | --- | --- |
+| id | INT | khóa chính, tự tăng | |
+| user_id | INT | khóa ngoại → users.id | |
+| date | DATE | bắt buộc | Ngày ghi nhận. Khoản này tính vào tháng của ngày này |
+| type | ENUM(BONUS, PENALTY) | bắt buộc | Thưởng hoặc phạt |
+| amount | INT | bắt buộc, luôn dương | Số tiền đồng |
+| reason | VARCHAR(255) | bắt buộc | Ví dụ "đi trễ 30 phút", "làm tốt dịp lễ" |
+
+Quy tắc nghiệp vụ:
+- `amount` luôn là số dương. `type` quyết định cộng hay trừ.
+- Nhân viên xem được từng khoản kèm lý do.
+
+## Công thức tính lương tháng
+
+Với một nhân viên trong tháng `M`:
+
+```
+giờ_sáng   = SUM(hours) của work_entries có shift_id = MORNING, is_off = false, work_date trong tháng M
+giờ_chiều  = SUM(hours) của work_entries có shift_id = AFTERNOON, is_off = false, work_date trong tháng M
+
+lương_sáng  = giờ_sáng  × monthly_rates.morning_rate
+lương_chiều = giờ_chiều × monthly_rates.afternoon_rate
+tổng_ca     = lương_sáng + lương_chiều
+
+thưởng = SUM(amount) của adjustments type = BONUS, date trong tháng M
+phạt   = SUM(amount) của adjustments type = PENALTY, date trong tháng M
+
+thực_lãnh = tổng_ca + thưởng − phạt
+```
+
+Ví dụ, tháng 11, Hoàng có mức 26.000 (sáng) và 28.000 (chiều):
+
+| Ngày | Chấm công | Tiền |
+| --- | --- | --- |
+| 01/11 | Ca sáng 8,5 giờ | 221.000đ |
+| 02/11 | Ca sáng, về 13h: 5,5 giờ | 143.000đ |
+| 03/11 | Ca sáng 8,5 giờ + ca chiều 10 giờ | 221.000 + 280.000 = 501.000đ |
+| 04/11 | Off | 0đ |
+| **Tổng** | | **865.000đ** |
+
+## Truy vấn mẫu
+
+Tổng giờ và tiền ca của mọi nhân viên trong một tháng (ví dụ `'2026-11'`):
+
+```sql
+SELECT
+  u.id,
+  u.full_name,
+  SUM(CASE WHEN s.code = 'MORNING'   THEN we.hours ELSE 0 END) AS morning_hours,
+  SUM(CASE WHEN s.code = 'AFTERNOON' THEN we.hours ELSE 0 END) AS afternoon_hours,
+  SUM(CASE WHEN s.code = 'MORNING'   THEN we.hours * mr.morning_rate
+           WHEN s.code = 'AFTERNOON' THEN we.hours * mr.afternoon_rate
+           ELSE 0 END) AS shift_pay
+FROM users u
+JOIN work_entries we ON we.user_id = u.id AND we.is_off = false
+JOIN shifts s        ON s.id = we.shift_id
+JOIN monthly_rates mr ON mr.user_id = u.id AND mr.month = '2026-11'
+WHERE we.work_date >= '2026-11-01' AND we.work_date < '2026-12-01'
+GROUP BY u.id, u.full_name;
+```
+
+Thưởng và phạt của một người trong tháng:
+
+```sql
+SELECT
+  SUM(CASE WHEN type = 'BONUS'   THEN amount ELSE 0 END) AS bonus,
+  SUM(CASE WHEN type = 'PENALTY' THEN amount ELSE 0 END) AS penalty
+FROM adjustments
+WHERE user_id = ? AND date >= '2026-11-01' AND date < '2026-12-01';
+```
+
+Ứng dụng có thể làm các phép tính này bằng Prisma hoặc SQL. Lưu ý: tất cả tính toán lương làm ở server.
+
+## Tóm tắt quy tắc
+
+- Mức lương đổi theo tháng, không đổi giữa tháng.
+- Ca chiều tính vào ngày bắt đầu ca, kể cả khi kết thúc sau nửa đêm.
+- Tối đa hai dòng ca mỗi người mỗi ngày, và không có ngày vừa Off vừa có ca.
+- Thưởng phạt tính vào tháng của ngày ghi nhận.
+- Nhân viên nghỉ việc: `is_active = false`, không xóa dữ liệu.
+- Mật khẩu luôn ở dạng băm.
