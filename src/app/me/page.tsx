@@ -1,22 +1,15 @@
-import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { LogoutButton } from "@/features/auth";
 
 export default async function MePage() {
   const user = await requireUser();
 
   return (
-    <main className="mx-auto w-full max-w-3xl p-6">
-      <h1 className="text-2xl font-semibold">Lương của tôi</h1>
-      <p className="mt-2 text-zinc-600">
-        Xin chào {user.fullName}. Chức năng sẽ làm ở bước 4.
-      </p>
-      <div className="mt-4 flex items-center gap-4">
-        <Link href="/change-password" className="text-sm underline">
-          Đổi mật khẩu
-        </Link>
-        <LogoutButton />
+    <main className="mx-auto flex w-full max-w-3xl flex-col gap-5 p-4 sm:p-6">
+      <div>
+        <h1 className="page-title">Lương của tôi</h1>
+        <p className="mt-1 text-stone-600">Xin chào {user.fullName}.</p>
       </div>
+      <div className="card text-sm text-stone-600">Bảng lương sẽ có ở bước sau.</div>
     </main>
   );
 }

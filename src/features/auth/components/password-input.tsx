@@ -17,13 +17,13 @@ export function PasswordInput({ name, autoComplete }: PasswordInputProps) {
         type={visible ? "text" : "password"}
         autoComplete={autoComplete}
         required
-        className="h-11 w-full rounded-md border border-zinc-300 bg-white pl-3 pr-16 text-base font-normal text-zinc-900"
+        className="input pr-16"
       />
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
         aria-pressed={visible}
-        className="absolute inset-y-0 right-0 px-3 text-sm font-normal text-zinc-600"
+        className="absolute inset-y-0 right-0 px-3 text-sm font-medium text-stone-500 hover:text-stone-800"
       >
         {visible ? "Ẩn" : "Hiện"}
       </button>

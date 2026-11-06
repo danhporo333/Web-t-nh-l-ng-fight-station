@@ -47,7 +47,7 @@ export async function changePassword(
   });
   if (!parsed.success) {
     const first = parsed.error.issues[0]?.message ?? "Dữ liệu không hợp lệ";
-    return fail("AUTH_004", first, parsed.error.flatten());
+    return fail("COMMON_001", first, parsed.error.flatten());
   }
 
   const result = await changeUserPassword(user.id, parsed.data.oldPassword, parsed.data.newPassword);

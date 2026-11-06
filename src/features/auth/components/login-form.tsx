@@ -9,30 +9,26 @@ export function LoginForm() {
 
   return (
     <form action={action} className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="field-label">
         Tên đăng nhập
         <input
           name="username"
           autoComplete="username"
           autoCapitalize="none"
           required
-          className="h-11 rounded-md border border-zinc-300 bg-white px-3 text-base font-normal text-zinc-900"
+          className="input"
         />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium">
+      <label className="field-label">
         Mật khẩu
         <PasswordInput name="password" autoComplete="current-password" />
       </label>
       {state && !state.success && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
           {state.error.message}
         </p>
       )}
-      <button
-        type="submit"
-        disabled={pending}
-        className="h-11 rounded-md bg-zinc-900 text-white disabled:opacity-60"
-      >
+      <button type="submit" disabled={pending} className="btn-primary">
         {pending ? "Đang đăng nhập..." : "Đăng nhập"}
       </button>
     </form>

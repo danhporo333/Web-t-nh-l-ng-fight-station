@@ -29,6 +29,7 @@ model User {
   fullName     String   @map("full_name") @db.VarChar(100)
   role         Role     @default(STAFF)
   isActive     Boolean  @default(true) @map("is_active")
+  defaultRate  Int?     @map("default_rate")
   createdAt    DateTime @default(now()) @map("created_at")
 
   monthlyRates MonthlyRate[]

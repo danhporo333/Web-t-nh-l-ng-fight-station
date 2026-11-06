@@ -1,22 +1,24 @@
 import Link from "next/link";
 import { requireOwner } from "@/lib/auth";
-import { LogoutButton } from "@/features/auth";
 
 export default async function AdminPage() {
   const user = await requireOwner();
 
   return (
-    <main className="mx-auto w-full max-w-3xl p-6">
-      <h1 className="text-2xl font-semibold">Quản lý</h1>
-      <p className="mt-2 text-zinc-600">
-        Xin chào {user.fullName}. Các chức năng sẽ làm ở bước 3.
-      </p>
-      <div className="mt-4 flex items-center gap-4">
-        <Link href="/change-password" className="text-sm underline">
-          Đổi mật khẩu
-        </Link>
-        <LogoutButton />
+    <main className="mx-auto flex w-full max-w-3xl flex-col gap-5 p-4 sm:p-6">
+      <div>
+        <h1 className="page-title">Xin chào, {user.fullName}</h1>
+        <p className="mt-1 text-stone-600">Chọn mục bạn muốn quản lý.</p>
       </div>
+      <Link href="/admin/staff" className="card block transition hover:border-red-300 hover:shadow-md">
+        <h2 className="font-semibold text-stone-900">Nhân viên</h2>
+        <p className="mt-1 text-sm text-stone-600">
+          Thêm nhân viên, đặt lại mật khẩu, cho nghỉ việc.
+        </p>
+      </Link>
+      <p className="text-sm text-stone-500">
+        Mức lương, chấm công, thưởng phạt và bảng lương sẽ có ở các bước sau.
+      </p>
     </main>
   );
 }
