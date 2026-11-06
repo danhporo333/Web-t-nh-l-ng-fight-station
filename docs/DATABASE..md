@@ -22,6 +22,7 @@ Tài khoản chủ quán và nhân viên.
 | full_name | VARCHAR(100) | bắt buộc | Họ tên hiển thị |
 | role | ENUM(OWNER, STAFF) | mặc định STAFF | OWNER là chủ quán |
 | is_active | BOOLEAN | mặc định true | false khi nhân viên nghỉ việc. Không xóa để giữ lịch sử lương |
+| default_rate | INT | có thể trống | Lương mặc định mọi ca, đồng/giờ. Ví dụ 27000 thì cả hai ca đều 27.000đ. Trống thì dùng mức mặc định của từng ca |
 | created_at | DATETIME | mặc định hiện tại | |
 
 Quy tắc:
@@ -69,7 +70,8 @@ Ràng buộc:
 Quy tắc nghiệp vụ:
 - Mức lương **chỉ đổi khi sang tháng mới**. Không đổi giữa tháng.
 - Khi sang tháng mới, hệ thống **chép** dòng của tháng trước sang tháng mới. Chủ quán chỉ sửa người được tăng lương.
-- Nếu nhân viên chưa có dòng của tháng trước, dùng mức mặc định của ca (`shifts.default_rate`).
+- Nếu nhân viên chưa có dòng của tháng trước, lấy theo thứ tự: `users.default_rate` của nhân viên (nếu có, dùng cho cả `morning_rate` và `afternoon_rate`), rồi mới đến mức mặc định của từng ca (`shifts.default_rate`).
+- Đổi `users.default_rate` không làm đổi các dòng `monthly_rates` đã có. Muốn đổi một tháng thì sửa trực tiếp ở màn hình Mức lương.
 
 ## Bảng `work_entries`
 
@@ -141,38 +143,71 @@ Ví dụ, tháng 11, Hoàng có mức 26.000 (sáng) và 28.000 (chiều):
 | 04/11 | Off | 0đ |
 | **Tổng** | | **865.000đ** |
 
-## Truy vấn mẫu
+## Truy vấn mẫu (Prisma)
 
-Tổng giờ và tiền ca của mọi nhân viên trong một tháng (ví dụ `'2026-11'`):
+Ứng dụng dùng Prisma Client, không viết SQL thô. Các ví dụ dưới đây nằm trong `queries.ts` của từng feature (xem `PROJECT-RULES.md`). Phép nhân giờ với mức lương làm ở hàm `calculatePay`, không làm trong truy vấn.
 
-```sql
-SELECT
-  u.id,
-  u.full_name,
-  SUM(CASE WHEN s.code = 'MORNING'   THEN we.hours ELSE 0 END) AS morning_hours,
-  SUM(CASE WHEN s.code = 'AFTERNOON' THEN we.hours ELSE 0 END) AS afternoon_hours,
-  SUM(CASE WHEN s.code = 'MORNING'   THEN we.hours * mr.morning_rate
-           WHEN s.code = 'AFTERNOON' THEN we.hours * mr.afternoon_rate
-           ELSE 0 END) AS shift_pay
-FROM users u
-JOIN work_entries we ON we.user_id = u.id AND we.is_off = false
-JOIN shifts s        ON s.id = we.shift_id
-JOIN monthly_rates mr ON mr.user_id = u.id AND mr.month = '2026-11'
-WHERE we.work_date >= '2026-11-01' AND we.work_date < '2026-12-01'
-GROUP BY u.id, u.full_name;
+Khoảng của một tháng (ví dụ `"2026-11"`), dùng chung cho các truy vấn bên dưới:
+
+```ts
+const month = "2026-11";
+const start = new Date(`${month}-01`); // 2026-11-01, giờ UTC
+const end = new Date(start);
+end.setUTCMonth(end.getUTCMonth() + 1); // 2026-12-01, không gồm ngày này
 ```
 
-Thưởng và phạt của một người trong tháng:
+Tổng giờ của mọi nhân viên trong tháng, theo từng ca (không tính ngày Off):
 
-```sql
-SELECT
-  SUM(CASE WHEN type = 'BONUS'   THEN amount ELSE 0 END) AS bonus,
-  SUM(CASE WHEN type = 'PENALTY' THEN amount ELSE 0 END) AS penalty
-FROM adjustments
-WHERE user_id = ? AND date >= '2026-11-01' AND date < '2026-12-01';
+```ts
+const hours = await prisma.workEntry.groupBy({
+  by: ["userId", "shiftId"],
+  where: { isOff: false, workDate: { gte: start, lt: end } },
+  _sum: { hours: true }, // Decimal, đổi sang number bằng Number(...)
+});
 ```
 
-Ứng dụng có thể làm các phép tính này bằng Prisma hoặc SQL. Lưu ý: tất cả tính toán lương làm ở server.
+Mức lương của mọi nhân viên trong tháng:
+
+```ts
+const rates = await prisma.monthlyRate.findMany({ where: { month } });
+```
+
+Thưởng và phạt của mọi nhân viên trong tháng:
+
+```ts
+const adjustments = await prisma.adjustment.groupBy({
+  by: ["userId", "type"],
+  where: { date: { gte: start, lt: end } },
+  _sum: { amount: true },
+});
+```
+
+Chi tiết từng ngày của một nhân viên (cho màn hình "Lương của tôi" và chi tiết bảng lương):
+
+```ts
+const days = await prisma.workEntry.findMany({
+  where: { userId, workDate: { gte: start, lt: end } },
+  include: { shift: true },
+  orderBy: { workDate: "asc" },
+});
+```
+
+Chép mức lương từ tháng trước sang tháng mới, không ghi đè dòng đã có:
+
+```ts
+const previous = await prisma.monthlyRate.findMany({ where: { month: prevMonth } });
+await prisma.monthlyRate.createMany({
+  data: previous.map((r) => ({
+    userId: r.userId,
+    month,
+    morningRate: r.morningRate,
+    afternoonRate: r.afternoonRate,
+  })),
+  skipDuplicates: true, // bỏ qua người đã có dòng của tháng này
+});
+```
+
+Ghép kết quả ở `payroll/service.ts`: với mỗi nhân viên, lấy giờ sáng và giờ chiều từ `hours` (nhận ra ca nhờ `shiftId`), lấy mức từ `rates`, thưởng phạt từ `adjustments`, rồi gọi `calculatePay` theo công thức ở mục trên.
 
 ## Tóm tắt quy tắc
 

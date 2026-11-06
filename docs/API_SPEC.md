@@ -80,7 +80,7 @@ Mã có dạng `[FEATURE]_[SỐ]`.
 | `STAFF_002` | Không tìm thấy nhân viên |
 | `STAFF_003` | Không thể khóa tài khoản chủ quán |
 | `SHIFT_001` | Giờ hoặc mức mặc định không hợp lệ |
-| `RATE_001` | Mức lương phải là số nguyên dương |
+| `RATE_001` | Mức lương phải là số nguyên dương (áp dụng cả lương mặc định của nhân viên) |
 | `RATE_002` | Chưa có mức lương của tháng này, cần chép từ tháng trước |
 | `ATT_001` | Số giờ không hợp lệ (nhỏ hơn 0 hoặc lớn hơn 24) |
 | `ATT_002` | Ngày đã Off nhưng có ca, hoặc có ca nhưng đánh dấu Off |
@@ -108,8 +108,8 @@ Cột Auth: `Owner` chỉ chủ quán, `User` mọi người đã đăng nhập,
 | Hàm | Loại | Mô tả | Auth |
 | --- | --- | --- | --- |
 | `listStaff` | Đọc | Danh sách nhân viên, lọc theo `is_active` | Owner |
-| `createStaff` | Action | Tạo tài khoản nhân viên | Owner |
-| `updateStaff` | Action | Sửa họ tên | Owner |
+| `createStaff` | Action | Tạo tài khoản nhân viên, có thể kèm lương mặc định mọi ca (`defaultRate`, tùy chọn) | Owner |
+| `updateStaff` | Action | Sửa họ tên và lương mặc định mọi ca (không đổi các tháng đã có) | Owner |
 | `resetPassword` | Action | Đặt lại mật khẩu cho nhân viên | Owner |
 | `setStaffActive` | Action | Cho nghỉ việc hoặc kích hoạt lại | Owner |
 
@@ -196,7 +196,8 @@ Vào: `month=2026-11`.
 
 Quy tắc, theo thứ tự cho từng nhân viên đang hoạt động chưa có dòng của tháng:
 1. Có dòng tháng trước thì chép `morning_rate`, `afternoon_rate` sang.
-2. Không có thì lấy `default_rate` của hai ca.
+2. Không có, mà nhân viên có `users.default_rate` thì dùng mức đó cho cả hai ca.
+3. Không có cả hai thì lấy `default_rate` của từng ca trong bảng `shifts`.
 
 Không ghi đè dòng đã có. Chạy lại nhiều lần cho cùng kết quả.
 

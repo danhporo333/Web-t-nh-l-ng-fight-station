@@ -34,6 +34,7 @@ Nếu các file lệch nhau: `ARCHITECTURE.md` quyết định cấu trúc thư 
 - Mức lương là **riêng cho từng nhân viên, từng ca** (ví dụ: Hoàng ca sáng 26.000, ca chiều 28.000).
 - Mức lương **chỉ thay đổi khi sang tháng mới**. Không tăng giữa tháng.
 - Khi sang tháng mới, hệ thống tự chép mức của tháng trước. Chủ quán chỉ sửa người được tăng.
+- Mỗi nhân viên có thể có **lương mặc định (mọi ca)**, tùy chọn. Ví dụ đặt 27.000đ thì cả ca sáng và ca chiều của người đó đều 27.000đ/giờ. Mức này chỉ dùng để tạo dòng lương của tháng đầu tiên cho người chưa có dòng nào. Sau đó mức từng tháng do chủ quán chỉnh ở màn hình Mức lương, và đổi lương mặc định không làm đổi các tháng đã có.
 - Chủ quán có thể sửa số giờ thực tế của một ca. Ví dụ ca sáng mặc định 8,5 giờ nhưng nhân viên về lúc 13h, thì nhập 5,5 giờ.
 - Một nhân viên có thể làm **cả hai ca trong cùng một ngày**.
 - Ca chiều tính vào **ngày bắt đầu ca**, kể cả khi kết thúc lúc 2h sáng ngày hôm sau. Ví dụ ca chiều 31/10 tính vào lương tháng 10.
@@ -71,13 +72,13 @@ Ví dụ, tháng 11, Hoàng có mức 26.000 (sáng) và 28.000 (chiều):
 
 Quản lý bằng Prisma. Schema đầy đủ nằm ở `prisma/schema.prisma`. Chi tiết từng cột và truy vấn mẫu nằm ở `DATABASE..md`.
 
-- **users**: tài khoản. Cột: `id`, `username` (duy nhất), `password_hash`, `full_name`, `role` (OWNER/STAFF), `is_active`, `created_at`.
+- **users**: tài khoản. Cột: `id`, `username` (duy nhất), `password_hash`, `full_name`, `role` (OWNER/STAFF), `is_active`, `default_rate` (có thể trống), `created_at`.
   - `is_active = false` khi nhân viên nghỉ việc. Lịch sử lương vẫn giữ.
 - **shifts**: hai ca và mức mặc định. Cột: `id`, `code` (MORNING/AFTERNOON), `name`, `start_time`, `end_time`, `default_hours`, `default_rate`.
 - **monthly_rates**: mức lương từng người từng tháng. Cột: `id`, `user_id`, `month` (dạng `2026-11`), `morning_rate`, `afternoon_rate`. Duy nhất theo cặp `(user_id, month)`.
 - Ngày Off: MySQL không chặn hai dòng Off trùng ngày vì `shift_id` trống. Ứng dụng phải tự kiểm tra, mỗi người tối đa một dòng Off mỗi ngày.
 - Một ngày không được vừa Off vừa có ca.
-- Khi sang tháng mới mà nhân viên chưa có dòng của tháng trước, dùng mức mặc định của ca (`default_rate`).
+- Khi sang tháng mới, mức của nhân viên lấy theo thứ tự: (1) dòng tháng trước, (2) `users.default_rate` của nhân viên nếu có (dùng cho cả hai ca), (3) mức mặc định của ca (`shifts.default_rate`).
 - **work_entries**: chấm công từng ngày. Cột: `id`, `user_id`, `work_date`, `shift_id` (trống khi Off), `hours`, `is_off`, `note`. Duy nhất theo `(user_id, work_date, shift_id)`.
   - Một người có tối đa một dòng cho mỗi ca trong một ngày.
   - Ngày Off: `is_off = true`, `shift_id` trống, `hours = 0`.
@@ -97,7 +98,7 @@ Quản lý bằng Prisma. Schema đầy đủ nằm ở `prisma/schema.prisma`. 
 ## 7. Màn hình
 
 **Chủ quán** (`/admin`):
-1. Danh sách nhân viên: tạo tài khoản, sửa tên, đặt lại mật khẩu, cho nghỉ việc.
+1. Danh sách nhân viên: tạo tài khoản (kèm lương mặc định mọi ca, tùy chọn), sửa tên và lương mặc định, đặt lại mật khẩu, cho nghỉ việc.
 2. Mức lương theo tháng: chọn tháng, sửa mức ca sáng và ca chiều của từng người.
 3. Chấm công theo ngày: chọn ngày, tích ca sáng và/hoặc ca chiều cho từng người. Ô giờ tự điền giờ mặc định, chủ quán sửa được. Hoặc tích Off.
 4. Thưởng phạt: thêm, sửa, xóa khoản thưởng hoặc phạt kèm lý do.
@@ -142,7 +143,7 @@ Thiết kế ưu tiên điện thoại: một cột, nút lớn, không cuộn n
 Chưa làm:
 - Chưa kết nối MySQL thật, chưa chạy `prisma db push`.
 - Chưa có chức năng quản lý nhân viên, mức lương, chấm công, thưởng phạt, bảng lương.
-- Chưa có màn hình đổi mật khẩu.
+- Đã có đăng nhập, đăng xuất, đổi mật khẩu (feature auth). Chưa thử tay trên trình duyệt.
 - Chưa đưa lên GitHub và Vercel.
 
 ## 10. Các bước tiếp theo

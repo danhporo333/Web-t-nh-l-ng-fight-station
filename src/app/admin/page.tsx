@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { requireOwner } from "@/lib/auth";
+import { LogoutButton } from "@/features/auth";
 
 export default async function AdminPage() {
   const user = await requireOwner();
@@ -9,6 +11,12 @@ export default async function AdminPage() {
       <p className="mt-2 text-zinc-600">
         Xin chào {user.fullName}. Các chức năng sẽ làm ở bước 3.
       </p>
+      <div className="mt-4 flex items-center gap-4">
+        <Link href="/change-password" className="text-sm underline">
+          Đổi mật khẩu
+        </Link>
+        <LogoutButton />
+      </div>
     </main>
   );
 }

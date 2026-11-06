@@ -60,8 +60,8 @@ Ghi lại những gì đã setup cho web tính lương Fight Station. Ngày: 202
 - `next.config.ts` không được bật `cacheComponents` hay `partialPrefetching`.
 - Next.js 16 dùng `proxy.ts`, không dùng `middleware.ts`.
 - `ARCHITECTURE.md` ghi "tạo thư mục khi dùng đến" nhưng skill yêu cầu tạo sẵn thư mục `features/*`; đã làm theo skill, chỉ có `index.ts` và `context.md`.
-- Trang `/change-password` có trong tài liệu và matcher của `proxy.ts` nhưng chưa có trang (làm ở bước 4).
-- Trang `/login` mới là khung, chưa có form (thuộc feature `auth`).
+- Trang `/change-password` đã làm trong feature auth.
+- Trang `/login` đã có form (feature auth).
 
 ## Bước tiếp theo
 1. `cp .env.example .env` rồi điền giá trị thật
