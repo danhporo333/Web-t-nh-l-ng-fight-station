@@ -48,6 +48,14 @@ describe("schema: loại lỗi", () => {
   });
 });
 
+describe("schema: loại MEAL", () => {
+  it("chấp nhận loại ăn uống, từ chối loại lạ", () => {
+    const form = { userId: "3", date: "2026-11-10", amount: "35000", reason: "ăn trưa" };
+    expect(createAdjustmentSchema.safeParse({ ...form, type: "MEAL" }).success).toBe(true);
+    expect(createAdjustmentSchema.safeParse({ ...form, type: "FOOD" }).success).toBe(false);
+  });
+});
+
 describe("loại lỗi chỉ dành cho khoản phạt", () => {
   beforeEach(() => {
     vi.mocked(queries.findUserRole).mockResolvedValue({ id: 3, role: "STAFF" });
@@ -63,6 +71,10 @@ describe("loại lỗi chỉ dành cho khoản phạt", () => {
   it("khoản thưởng bị bỏ loại lỗi", async () => {
     await createAdjustmentFor({ ...base, type: "BONUS", category: "đi trễ" });
     expect(queries.insertAdjustment).toHaveBeenCalledWith(expect.objectContaining({ category: null }));
+  });
+  it("khoản ăn uống cũng bị bỏ loại lỗi", async () => {
+    await createAdjustmentFor({ ...base, type: "MEAL", category: "đi trễ" });
+    expect(queries.insertAdjustment).toHaveBeenCalledWith(expect.objectContaining({ type: "MEAL", category: null }));
   });
   it("sửa phạt thành thưởng thì xóa loại lỗi", async () => {
     const { date, amount, reason } = base;

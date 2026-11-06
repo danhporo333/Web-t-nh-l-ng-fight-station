@@ -1,7 +1,8 @@
 # adjustments
 
-Thưởng và phạt kèm lý do, tính theo tháng của ngày ghi nhận. Bảng: adjustments, users. Xem SPEC.md mục 4.
+Thưởng, phạt và tiền ăn uống kèm lý do, tính theo tháng của ngày ghi nhận. Bảng: adjustments, users. Xem SPEC.md mục 4.
 
+- Ba loại khoản: `BONUS` thưởng (cộng), `PENALTY` phạt (trừ), `MEAL` tiền ăn uống tại quán (trừ). Chủ quán tự nhập số tiền. `MEAL` không phải phạt: không có loại lỗi và không vào thống kê của `stats`. `getAdjustmentTotals` trả thêm `meal`, `summarizeAdjustments` trả thêm `meal`.
 - Loại lỗi (`category`, tối đa 50 ký tự, tùy chọn) tự đặt, chỉ lưu cho khoản phạt (khoản thưởng luôn bỏ loại). Ô nhập gợi ý các loại đã dùng (`getCategoryOptions`, `CategoryDatalist`). `getPenaltyBreakdown(month)` trả số lần và tiền phạt theo nhân viên và loại lỗi cho feature `stats`.
 
 - Trang `/admin/adjustments?month=YYYY-MM&userId=<id>` (mặc định tháng hiện tại, mọi nhân viên): chọn tháng, lọc theo nhân viên, hai ô tổng thưởng và tổng phạt, nút "+ Thêm thưởng phạt" mở form, danh sách khoản (bấm mở ra sửa hoặc xóa).

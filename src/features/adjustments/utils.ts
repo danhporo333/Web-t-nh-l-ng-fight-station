@@ -4,9 +4,11 @@ import type { AdjustmentItem } from "./types";
 export function summarizeAdjustments(items: Pick<AdjustmentItem, "type" | "amount">[]) {
   let bonus = 0;
   let penalty = 0;
+  let meal = 0;
   for (const item of items) {
     if (item.type === "BONUS") bonus += item.amount;
-    else penalty += item.amount;
+    else if (item.type === "PENALTY") penalty += item.amount;
+    else meal += item.amount;
   }
-  return { bonus, penalty, net: bonus - penalty };
+  return { bonus, penalty, meal, net: bonus - penalty - meal };
 }

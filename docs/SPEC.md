@@ -48,7 +48,7 @@ Với mỗi nhân viên, trong một tháng:
 Lương ca sáng   = tổng giờ ca sáng   × mức ca sáng của tháng
 Lương ca chiều  = tổng giờ ca chiều  × mức ca chiều của tháng
 Tổng lương ca   = Lương ca sáng + Lương ca chiều
-Thực lãnh       = Tổng lương ca + Tổng thưởng − Tổng phạt
+Thực lãnh       = Tổng lương ca + Tổng thưởng − Tổng phạt − Tổng tiền ăn uống
 ```
 
 Ví dụ, tháng 11, Hoàng có mức 26.000 (sáng) và 28.000 (chiều):
@@ -61,10 +61,11 @@ Ví dụ, tháng 11, Hoàng có mức 26.000 (sáng) và 28.000 (chiều):
 | 04/11 | Off | 0đ |
 | **Tổng** | | **865.000đ** (chưa tính thưởng phạt) |
 
-## 4. Thưởng và phạt
+## 4. Thưởng, phạt và tiền ăn uống
 
-- Chủ quán thêm khoản thưởng hoặc phạt cho một nhân viên, kèm ngày, số tiền và lý do.
-- Số tiền luôn dương. Loại (BONUS hoặc PENALTY) quyết định cộng hay trừ.
+- Chủ quán thêm khoản thưởng, phạt hoặc ăn uống cho một nhân viên, kèm ngày, số tiền và lý do. Số tiền do chủ quán tự nhập.
+- Ăn uống (MEAL) là tiền nhân viên ăn uống tại quán, chủ quán tự ghi số tiền để trừ vào lương. Khoản này không phải phạt nên không tính vào thống kê lỗi và phạt.
+- Số tiền luôn dương. Loại (BONUS, PENALTY hoặc MEAL) quyết định cộng hay trừ.
 - Khoản nào tính vào tháng nào thì theo **ngày** của khoản đó.
 - Nhân viên xem được từng khoản kèm lý do trong "Lương của tôi".
 
@@ -82,7 +83,7 @@ Quản lý bằng Prisma. Schema đầy đủ nằm ở `prisma/schema.prisma`. 
 - **work_entries**: chấm công từng ngày. Cột: `id`, `user_id`, `work_date`, `shift_id` (trống khi Off), `hours`, `is_off`, `note`. Duy nhất theo `(user_id, work_date, shift_id)`.
   - Một người có tối đa một dòng cho mỗi ca trong một ngày.
   - Ngày Off: `is_off = true`, `shift_id` trống, `hours = 0`.
-- **adjustments**: thưởng và phạt. Cột: `id`, `user_id`, `date`, `type` (BONUS/PENALTY), `amount` (số dương), `reason`, `category` (loại lỗi tự đặt, tùy chọn, chỉ cho khoản phạt).
+- **adjustments**: thưởng và phạt. Cột: `id`, `user_id`, `date`, `type` (BONUS/PENALTY/MEAL), `amount` (số dương), `reason`, `category` (loại lỗi tự đặt, tùy chọn, chỉ cho khoản phạt).
 
 ## 6. Đăng nhập và phân quyền
 

@@ -28,13 +28,13 @@ describe("getMonthlyPayroll", () => {
   it("tính lương theo giờ, mức, thưởng và phạt của từng người", async () => {
     vi.mocked(getMonthHours).mockResolvedValue([{ userId: 3, morningHours: 14, afternoonHours: 10 }]);
     vi.mocked(getRatesForMonth).mockResolvedValue([{ userId: 3, morningRate: 26000, afternoonRate: 28000 }]);
-    vi.mocked(getAdjustmentTotals).mockResolvedValue([{ userId: 3, bonus: 50000, penalty: 20000 }]);
+    vi.mocked(getAdjustmentTotals).mockResolvedValue([{ userId: 3, bonus: 50000, penalty: 20000, meal: 30000 }]);
     vi.mocked(findStaffForPayroll).mockResolvedValue([hoang]);
 
     const p = await getMonthlyPayroll("2026-11");
 
-    expect(p.rows[0]).toMatchObject({ userId: 3, shiftPay: 644000, bonus: 50000, penalty: 20000, netPay: 674000, missingRate: false });
-    expect(p.totals).toMatchObject({ morningHours: 14, afternoonHours: 10, shiftPay: 644000, netPay: 674000 });
+    expect(p.rows[0]).toMatchObject({ userId: 3, shiftPay: 644000, bonus: 50000, penalty: 20000, meal: 30000, netPay: 644000, missingRate: false });
+    expect(p.totals).toMatchObject({ morningHours: 14, afternoonHours: 10, shiftPay: 644000, meal: 30000, netPay: 644000 });
   });
 
   it("nhân viên không có giờ làm cho 0đ dù chưa có mức lương", async () => {
@@ -59,16 +59,16 @@ describe("getMonthlyPayroll", () => {
     expect(p.totals.netPay).toBe(221000);
   });
 
-  it("chỉ thưởng phạt, không có giờ làm: thực lãnh là thưởng trừ phạt", async () => {
-    vi.mocked(getAdjustmentTotals).mockResolvedValue([{ userId: 4, bonus: 30000, penalty: 10000 }]);
+  it("chỉ thưởng phạt, không có giờ làm: thực lãnh là thưởng trừ phạt và ăn uống", async () => {
+    vi.mocked(getAdjustmentTotals).mockResolvedValue([{ userId: 4, bonus: 30000, penalty: 10000, meal: 5000 }]);
     vi.mocked(findStaffForPayroll).mockResolvedValue([lan]);
     const p = await getMonthlyPayroll("2026-11");
-    expect(p.rows[0]).toMatchObject({ shiftPay: 0, netPay: 20000 });
+    expect(p.rows[0]).toMatchObject({ shiftPay: 0, netPay: 15000 });
   });
 
   it("yêu cầu cả người đã nghỉ việc có dữ liệu trong tháng", async () => {
     vi.mocked(getMonthHours).mockResolvedValue([{ userId: 5, morningHours: 8, afternoonHours: 0 }]);
-    vi.mocked(getAdjustmentTotals).mockResolvedValue([{ userId: 4, bonus: 1000, penalty: 0 }]);
+    vi.mocked(getAdjustmentTotals).mockResolvedValue([{ userId: 4, bonus: 1000, penalty: 0, meal: 0 }]);
     vi.mocked(getRatesForMonth).mockResolvedValue([{ userId: 5, morningRate: 24000, afternoonRate: 26000 }]);
     vi.mocked(findStaffForPayroll).mockResolvedValue([lan, minh]);
 

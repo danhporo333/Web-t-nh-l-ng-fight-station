@@ -29,7 +29,7 @@ export default async function AdminAdjustmentsPage({ searchParams }: PageProps<"
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-5 p-4 sm:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="page-title">Thưởng phạt</h1>
+        <h1 className="page-title">Thưởng, phạt, ăn uống</h1>
         <MonthPicker basePath="/admin/adjustments" month={month} query={query} />
       </div>
 

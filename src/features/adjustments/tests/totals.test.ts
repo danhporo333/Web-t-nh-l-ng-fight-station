@@ -22,11 +22,12 @@ describe("getAdjustmentTotals", () => {
       { userId: 3, type: "BONUS", _sum: { amount: 50000 } },
       { userId: 3, type: "PENALTY", _sum: { amount: 20000 } },
       { userId: 4, type: "PENALTY", _sum: { amount: 10000 } },
+      { userId: 4, type: "MEAL", _sum: { amount: 35000 } },
     ] as never);
 
     expect(await getAdjustmentTotals("2026-11")).toEqual([
-      { userId: 3, bonus: 50000, penalty: 20000 },
-      { userId: 4, bonus: 0, penalty: 10000 },
+      { userId: 3, bonus: 50000, penalty: 20000, meal: 0 },
+      { userId: 4, bonus: 0, penalty: 10000, meal: 35000 },
     ]);
   });
 

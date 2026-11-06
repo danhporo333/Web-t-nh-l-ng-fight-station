@@ -11,7 +11,7 @@ export function PayrollTotalsCard({ totals }: PayrollTotalsProps) {
         <p className="text-sm text-stone-500">Tổng thực lãnh cả tháng</p>
         <p className="text-3xl font-bold tracking-tight text-stone-900">{formatVnd(totals.netPay)}</p>
       </div>
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-4">
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm sm:grid-cols-5">
         <div>
           <dt className="text-stone-500">Giờ ca sáng</dt>
           <dd className="font-medium">{formatHours(totals.morningHours)}</dd>
@@ -27,6 +27,10 @@ export function PayrollTotalsCard({ totals }: PayrollTotalsProps) {
         <div>
           <dt className="text-stone-500">Phạt</dt>
           <dd className="font-medium text-red-700">{formatVnd(totals.penalty)}</dd>
+        </div>
+        <div>
+          <dt className="text-stone-500">Ăn uống</dt>
+          <dd className="font-medium text-amber-700">{formatVnd(totals.meal)}</dd>
         </div>
       </dl>
     </div>

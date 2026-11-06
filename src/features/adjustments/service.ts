@@ -63,18 +63,19 @@ export async function deleteAdjustmentFor(id: number): Promise<ActionResult<{ de
   return ok({ deleted: true });
 }
 
-// Tổng thưởng và phạt của từng nhân viên trong tháng (chỉ người có khoản). Dùng cho bảng lương.
+// Tổng thưởng, phạt và tiền ăn uống của từng nhân viên trong tháng (chỉ người có khoản). Dùng cho bảng lương.
 export async function getAdjustmentTotals(
   month: string,
   userId?: number,
-): Promise<{ userId: number; bonus: number; penalty: number }[]> {
+): Promise<{ userId: number; bonus: number; penalty: number; meal: number }[]> {
   const sums = await sumAdjustmentsByUserAndType(month, userId);
-  const byUser = new Map<number, { userId: number; bonus: number; penalty: number }>();
+  const byUser = new Map<number, { userId: number; bonus: number; penalty: number; meal: number }>();
   for (const sum of sums) {
-    const entry = byUser.get(sum.userId) ?? { userId: sum.userId, bonus: 0, penalty: 0 };
+    const entry = byUser.get(sum.userId) ?? { userId: sum.userId, bonus: 0, penalty: 0, meal: 0 };
     const amount = sum._sum.amount ?? 0;
     if (sum.type === "BONUS") entry.bonus += amount;
-    else entry.penalty += amount;
+    else if (sum.type === "PENALTY") entry.penalty += amount;
+    else entry.meal += amount;
     byUser.set(sum.userId, entry);
   }
   return [...byUser.values()];

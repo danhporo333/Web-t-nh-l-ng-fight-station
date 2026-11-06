@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { calculatePay, calculateShiftPay } from "../utils";
 
-const base = { morningHours: 0, afternoonHours: 0, morningRate: 26000, afternoonRate: 28000, bonus: 0, penalty: 0 };
+const base = { morningHours: 0, afternoonHours: 0, morningRate: 26000, afternoonRate: 28000, bonus: 0, penalty: 0, meal: 0 };
 
 describe("calculatePay", () => {
   it("chỉ ca sáng", () => {
@@ -27,6 +27,16 @@ describe("calculatePay", () => {
   it("thưởng và phạt cùng lúc, ví dụ API_SPEC: 644.000 + 50.000 − 20.000 = 674.000", () => {
     const r = calculatePay({ ...base, morningHours: 14, afternoonHours: 10, bonus: 50000, penalty: 20000 });
     expect(r).toEqual({ shiftPay: 644000, netPay: 674000 });
+  });
+  it("trừ tiền ăn uống", () => {
+    expect(calculatePay({ ...base, morningHours: 8.5, meal: 35000 }).netPay).toBe(186000);
+  });
+  it("thưởng, phạt và ăn uống cùng lúc: 644.000 + 50.000 − 20.000 − 30.000 = 644.000", () => {
+    const r = calculatePay({ ...base, morningHours: 14, afternoonHours: 10, bonus: 50000, penalty: 20000, meal: 30000 });
+    expect(r).toEqual({ shiftPay: 644000, netPay: 644000 });
+  });
+  it("ăn uống nhiều hơn lương ca cho thực lãnh âm", () => {
+    expect(calculatePay({ ...base, morningHours: 1, meal: 100000 }).netPay).toBe(-74000);
   });
   it("phạt lớn hơn lương ca cho thực lãnh âm, không bị chặn về 0", () => {
     expect(calculatePay({ ...base, morningHours: 1, penalty: 100000 }).netPay).toBe(-74000);

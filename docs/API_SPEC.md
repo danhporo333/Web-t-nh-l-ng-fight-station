@@ -22,7 +22,7 @@ Mô tả các thao tác dữ liệu của dự án. Dự án là một app Next.
 - Tháng: `month=2026-11`. Ngày: `date=2026-11-05`.
 - Không có phân trang: số nhân viên và số dòng mỗi tháng nhỏ.
 - Sắp xếp mặc định: nhân viên theo `full_name`, chấm công theo `work_date` giảm dần.
-- Số tiền thưởng phạt luôn dương. Loại (`BONUS`, `PENALTY`) quyết định dấu.
+- Số tiền thưởng, phạt, ăn uống luôn dương. Loại (`BONUS`, `PENALTY`, `MEAL`) quyết định dấu.
 - Không có upload file.
 
 ## 4. Định dạng kết quả
@@ -225,7 +225,8 @@ Ra:
     "shiftPay": 644000,
     "bonus": 50000,
     "penalty": 20000,
-    "netPay": 674000
+    "meal": 30000,
+    "netPay": 644000
   }
 ]
 ```
@@ -234,7 +235,7 @@ Công thức (chi tiết ở `DATABASE..md`):
 
 ```
 shiftPay = round(morningHours × morningRate + afternoonHours × afternoonRate)
-netPay   = shiftPay + bonus − penalty
+netPay   = shiftPay + bonus − penalty − meal
 ```
 
 Lỗi có thể gặp: `RATE_002` nếu nhân viên có chấm công nhưng chưa có mức của tháng.
@@ -247,7 +248,7 @@ Ra: cùng cấu trúc một dòng của `getMonthlyPayroll`, thêm danh sách t�
 
 ```json
 {
-  "summary": { "shiftPay": 644000, "bonus": 50000, "penalty": 20000, "netPay": 674000 },
+  "summary": { "shiftPay": 644000, "bonus": 50000, "penalty": 20000, "meal": 30000, "netPay": 644000 },
   "days": [
     { "date": "2026-11-01", "shift": "MORNING", "hours": 8.5, "pay": 221000 },
     { "date": "2026-11-04", "off": true }

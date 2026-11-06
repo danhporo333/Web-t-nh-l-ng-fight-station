@@ -28,7 +28,7 @@ const categoryField = z
   .optional()
   .transform((v) => (v ? v : null));
 
-const typeField = z.enum(["BONUS", "PENALTY"], { message: "Chọn thưởng hoặc phạt" });
+const typeField = z.enum(["BONUS", "PENALTY", "MEAL"], { message: "Chọn thưởng, phạt hoặc ăn uống" });
 
 export const createAdjustmentSchema = z.object({
   userId: idField,

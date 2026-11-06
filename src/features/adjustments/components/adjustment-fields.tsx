@@ -15,7 +15,14 @@ type AdjustmentFieldsProps = {
 const TYPES: { value: AdjustmentType; label: string }[] = [
   { value: "BONUS", label: "Thưởng" },
   { value: "PENALTY", label: "Phạt" },
+  { value: "MEAL", label: "Ăn uống" },
 ];
+
+const REASON_PLACEHOLDER: Record<AdjustmentType, string> = {
+  BONUS: "Ví dụ: làm tốt dịp lễ",
+  PENALTY: "Ví dụ: đi trễ 30 phút",
+  MEAL: "Ví dụ: ăn trưa, uống nước",
+};
 
 export function AdjustmentFields({ staff, defaultUserId, defaultDate, initial }: AdjustmentFieldsProps) {
   const [type, setType] = useState<AdjustmentType>(initial?.type ?? "PENALTY");
@@ -94,7 +101,7 @@ export function AdjustmentFields({ staff, defaultUserId, defaultDate, initial }:
           required
           maxLength={255}
           defaultValue={initial?.reason}
-          placeholder="Ví dụ: đi trễ 30 phút"
+          placeholder={REASON_PLACEHOLDER[type]}
           className="input"
         />
       </label>

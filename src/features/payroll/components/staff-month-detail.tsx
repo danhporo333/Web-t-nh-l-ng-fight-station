@@ -7,6 +7,8 @@ import { PayrollFigures } from "./payroll-figures";
 type StaffMonthDetailProps = { detail: StaffMonthDetail };
 
 const SHIFT_LABEL = { MORNING: "Ca sáng", AFTERNOON: "Ca chiều" } as const;
+const ADJUSTMENT_LABEL = { BONUS: "Thưởng", PENALTY: "Phạt", MEAL: "Ăn uống" } as const;
+const ADJUSTMENT_COLOR = { BONUS: "text-green-700", PENALTY: "text-red-700", MEAL: "text-amber-700" } as const;
 
 export function StaffMonthDetailView({ detail }: StaffMonthDetailProps) {
   const { summary, days, adjustments } = detail;
@@ -50,24 +52,20 @@ export function StaffMonthDetailView({ detail }: StaffMonthDetailProps) {
       </section>
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-semibold text-stone-900">Thưởng phạt</h2>
+        <h2 className="font-semibold text-stone-900">Thưởng, phạt, ăn uống</h2>
         {adjustments.length === 0 ? (
-          <div className="card text-sm text-stone-500">Không có khoản thưởng phạt nào.</div>
+          <div className="card text-sm text-stone-500">Không có khoản nào trong tháng này.</div>
         ) : (
           <ul className="card divide-y divide-stone-100 p-0">
             {adjustments.map((a) => (
               <li key={a.id} className="flex items-start justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-stone-900">{formatDateLabel(a.date)}</p>
-                  <p className="text-sm text-stone-600">{a.reason}</p>
+                  <p className="text-sm text-stone-600">
+                    {ADJUSTMENT_LABEL[a.type]} · {a.reason}
+                  </p>
                 </div>
-                <p
-                  className={
-                    a.type === "BONUS"
-                      ? "shrink-0 text-sm font-semibold text-green-700"
-                      : "shrink-0 text-sm font-semibold text-red-700"
-                  }
-                >
+                <p className={`shrink-0 text-sm font-semibold ${ADJUSTMENT_COLOR[a.type]}`}>
                   {a.type === "BONUS" ? "+" : "−"}
                   {formatVnd(a.amount)}
                 </p>

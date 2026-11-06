@@ -14,13 +14,14 @@ import { calculatePay, calculateShiftPay } from "./utils";
 type Staff = { id: number; username: string; fullName: string; isActive: boolean };
 type Hours = { morningHours: number; afternoonHours: number };
 type Rates = { morningRate: number; afternoonRate: number } | undefined;
-type Totals = { bonus: number; penalty: number } | undefined;
+type Totals = { bonus: number; penalty: number; meal: number } | undefined;
 
 function buildRow(staff: Staff, hours: Hours | undefined, rates: Rates, totals: Totals): PayrollRow {
   const morningHours = hours?.morningHours ?? 0;
   const afternoonHours = hours?.afternoonHours ?? 0;
   const bonus = totals?.bonus ?? 0;
   const penalty = totals?.penalty ?? 0;
+  const meal = totals?.meal ?? 0;
 
   // Chỉ coi là thiếu mức khi thật sự có giờ làm. Không có giờ thì lương ca là 0đ dù chưa có mức.
   const missingRate = (morningHours > 0 || afternoonHours > 0) && !rates;
@@ -36,6 +37,7 @@ function buildRow(staff: Staff, hours: Hours | undefined, rates: Rates, totals: 
     afternoonRate: rates?.afternoonRate ?? null,
     bonus,
     penalty,
+    meal,
     missingRate,
   };
   if (missingRate) return { ...base, shiftPay: null, netPay: null };
@@ -47,17 +49,19 @@ function buildRow(staff: Staff, hours: Hours | undefined, rates: Rates, totals: 
     afternoonRate: rates?.afternoonRate ?? 0,
     bonus,
     penalty,
+    meal,
   });
   return { ...base, shiftPay, netPay };
 }
 
 function sumTotals(rows: PayrollRow[]): PayrollTotals {
-  const totals: PayrollTotals = { morningHours: 0, afternoonHours: 0, shiftPay: 0, bonus: 0, penalty: 0, netPay: 0 };
+  const totals: PayrollTotals = { morningHours: 0, afternoonHours: 0, shiftPay: 0, bonus: 0, penalty: 0, meal: 0, netPay: 0 };
   for (const r of rows) {
     totals.morningHours += r.morningHours;
     totals.afternoonHours += r.afternoonHours;
     totals.bonus += r.bonus;
     totals.penalty += r.penalty;
+    totals.meal += r.meal;
     totals.shiftPay += r.shiftPay ?? 0;
     totals.netPay += r.netPay ?? 0;
   }

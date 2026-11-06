@@ -5,8 +5,16 @@ import { EditAdjustmentForm } from "./edit-adjustment-form";
 
 type AdjustmentCardProps = { item: AdjustmentItem };
 
+const TYPE_LABEL = { BONUS: "Thưởng", PENALTY: "Phạt", MEAL: "Ăn uống" } as const;
+const AMOUNT_CLASS = {
+  BONUS: "shrink-0 font-semibold text-green-700",
+  PENALTY: "shrink-0 font-semibold text-red-700",
+  MEAL: "shrink-0 font-semibold text-amber-700",
+} as const;
+
 export function AdjustmentCard({ item }: AdjustmentCardProps) {
   const isBonus = item.type === "BONUS";
+  const typeLabel = TYPE_LABEL[item.type];
   const [year, month, day] = item.date.split("-");
 
   return (
@@ -15,11 +23,11 @@ export function AdjustmentCard({ item }: AdjustmentCardProps) {
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="truncate font-semibold text-stone-900">{item.fullName}</span>
           <span className="truncate text-sm text-stone-500">
-            {`${day}/${month}/${year}`}
-            {item.category && ` · [${item.category}]`} · {item.reason}
+            {`${day}/${month}/${year}`} · {typeLabel}
+            {item.category && ` [${item.category}]`} · {item.reason}
           </span>
         </span>
-        <span className={isBonus ? "shrink-0 font-semibold text-green-700" : "shrink-0 font-semibold text-red-700"}>
+        <span className={AMOUNT_CLASS[item.type]}>
           {isBonus ? "+" : "−"}
           {formatVnd(item.amount)}
         </span>

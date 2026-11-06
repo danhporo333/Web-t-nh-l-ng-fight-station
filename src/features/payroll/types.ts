@@ -11,6 +11,8 @@ export type PayrollRow = {
   afternoonRate: number | null;
   bonus: number;
   penalty: number;
+  // Tiền ăn uống tại quán, trừ vào lương
+  meal: number;
   // null khi có giờ làm nhưng chưa có mức lương của tháng (RATE_002)
   shiftPay: number | null;
   netPay: number | null;
@@ -23,6 +25,7 @@ export type PayrollTotals = {
   shiftPay: number;
   bonus: number;
   penalty: number;
+  meal: number;
   netPay: number;
 };
 

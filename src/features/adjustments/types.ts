@@ -1,4 +1,5 @@
-export type AdjustmentType = "BONUS" | "PENALTY";
+// BONUS: thưởng (cộng). PENALTY: phạt (trừ). MEAL: tiền ăn uống tại quán (trừ).
+export type AdjustmentType = "BONUS" | "PENALTY" | "MEAL";
 
 export type AdjustmentItem = {
   id: number;

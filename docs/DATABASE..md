@@ -107,7 +107,7 @@ Thưởng và phạt.
 | id | INT | khóa chính, tự tăng | |
 | user_id | INT | khóa ngoại → users.id | |
 | date | DATE | bắt buộc | Ngày ghi nhận. Khoản này tính vào tháng của ngày này |
-| type | ENUM(BONUS, PENALTY) | bắt buộc | Thưởng hoặc phạt |
+| type | ENUM(BONUS, PENALTY, MEAL) | bắt buộc | Thưởng (cộng), phạt (trừ) hoặc tiền ăn uống tại quán (trừ) |
 | amount | INT | bắt buộc, luôn dương | Số tiền đồng |
 | reason | VARCHAR(255) | bắt buộc | Ví dụ "đi trễ 30 phút", "làm tốt dịp lễ" |
 | category | VARCHAR(50) | có thể trống | Loại lỗi do chủ quán tự đặt (ví dụ "đi trễ", "nghỉ không phép"), chỉ dùng cho khoản phạt. Dùng để thống kê |
@@ -130,8 +130,9 @@ tổng_ca     = lương_sáng + lương_chiều
 
 thưởng = SUM(amount) của adjustments type = BONUS, date trong tháng M
 phạt   = SUM(amount) của adjustments type = PENALTY, date trong tháng M
+ăn_uống = SUM(amount) của adjustments type = MEAL, date trong tháng M
 
-thực_lãnh = tổng_ca + thưởng − phạt
+thực_lãnh = tổng_ca + thưởng − phạt − ăn_uống
 ```
 
 Ví dụ, tháng 11, Hoàng có mức 26.000 (sáng) và 28.000 (chiều):

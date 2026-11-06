@@ -6,7 +6,7 @@ const SECTIONS = [
   { href: "/admin/payroll", title: "Bảng lương", text: "Tổng giờ, thưởng phạt và thực lãnh của mọi người theo tháng." },
   { href: "/admin/staff", title: "Nhân viên", text: "Thêm nhân viên, đặt lại mật khẩu, cho nghỉ việc." },
   { href: "/admin/attendance", title: "Chấm công", text: "Chọn ngày, tích ca sáng, ca chiều hoặc Off cho từng người." },
-  { href: "/admin/adjustments", title: "Thưởng phạt", text: "Thêm, sửa, xóa khoản thưởng hoặc phạt kèm lý do." },
+  { href: "/admin/adjustments", title: "Thưởng phạt, ăn uống", text: "Thêm, sửa, xóa khoản thưởng, phạt hoặc tiền ăn uống trừ vào lương, kèm lý do." },
   { href: "/admin/rates", title: "Mức lương", text: "Xem và sửa mức lương ca sáng, ca chiều của từng người theo tháng." },
   { href: "/admin/shifts", title: "Cài đặt ca", text: "Sửa giờ, số giờ và mức mặc định của hai ca." },
 ];

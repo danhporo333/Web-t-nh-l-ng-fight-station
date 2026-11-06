@@ -32,11 +32,16 @@ export function PayrollFigures({ row }: PayrollFiguresProps) {
           <dd className="font-medium">{row.shiftPay === null ? "—" : formatVnd(row.shiftPay)}</dd>
         </div>
         <div>
-          <dt className="text-stone-500">Thưởng / Phạt</dt>
-          <dd className="font-medium">
-            <span className="text-green-700">+{formatVnd(row.bonus)}</span>{" "}
-            <span className="text-red-700">−{formatVnd(row.penalty)}</span>
-          </dd>
+          <dt className="text-stone-500">Thưởng</dt>
+          <dd className="font-medium text-green-700">+{formatVnd(row.bonus)}</dd>
+        </div>
+        <div>
+          <dt className="text-stone-500">Phạt</dt>
+          <dd className="font-medium text-red-700">−{formatVnd(row.penalty)}</dd>
+        </div>
+        <div>
+          <dt className="text-stone-500">Ăn uống</dt>
+          <dd className="font-medium text-amber-700">−{formatVnd(row.meal)}</dd>
         </div>
       </dl>
       <div className="flex items-baseline justify-between border-t border-stone-200 pt-3">
