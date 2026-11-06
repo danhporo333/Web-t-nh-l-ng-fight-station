@@ -23,3 +23,15 @@ export type DayEntryInput = {
   morning?: ShiftInput;
   afternoon?: ShiftInput;
 };
+
+// Tổng giờ của một nhân viên trong tháng, không tính ngày Off.
+export type MonthHours = { userId: number; morningHours: number; afternoonHours: number };
+
+// Một dòng chấm công của một ngày (ca hoặc Off).
+export type DayRecord = {
+  date: string;
+  off: boolean;
+  shift: "MORNING" | "AFTERNOON" | null;
+  hours: number;
+  note: string | null;
+};

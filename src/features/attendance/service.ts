@@ -4,10 +4,12 @@ import {
   findEntriesByDate,
   findShifts,
   findStaffByIds,
+  findUserEntriesInMonth,
   replaceDayEntries,
+  sumHoursByUserAndShift,
   type NewEntry,
 } from "./queries";
-import type { DayEntryInput, DayEntryRow, DayView, ShiftEntry } from "./types";
+import type { DayEntryInput, DayEntryRow, DayRecord, DayView, MonthHours, ShiftEntry } from "./types";
 
 export async function getDayEntries(date: string): Promise<DayView> {
   const [staff, entries, shifts] = await Promise.all([
@@ -81,4 +83,32 @@ export async function saveDayEntriesFor(
 
   await replaceDayEntries(date, ids, rows);
   return ok({ saved: entries.length });
+}
+
+// Tổng giờ sáng, chiều của từng nhân viên trong tháng. Ca chiều tính theo ngày bắt đầu ca.
+export async function getMonthHours(month: string, userId?: number): Promise<MonthHours[]> {
+  const [sums, shifts] = await Promise.all([sumHoursByUserAndShift(month, userId), findShifts()]);
+  const codeById = new Map(shifts.map((s) => [s.id, s.code]));
+  const byUser = new Map<number, MonthHours>();
+  for (const sum of sums) {
+    const code = sum.shiftId === null ? undefined : codeById.get(sum.shiftId);
+    if (!code) continue;
+    const entry = byUser.get(sum.userId) ?? { userId: sum.userId, morningHours: 0, afternoonHours: 0 };
+    const hours = Number(sum._sum.hours ?? 0);
+    if (code === "MORNING") entry.morningHours += hours;
+    else entry.afternoonHours += hours;
+    byUser.set(sum.userId, entry);
+  }
+  return [...byUser.values()];
+}
+
+export async function getUserMonthDays(userId: number, month: string): Promise<DayRecord[]> {
+  const rows = await findUserEntriesInMonth(userId, month);
+  return rows.map((r) => ({
+    date: r.workDate.toISOString().slice(0, 10),
+    off: r.isOff,
+    shift: r.shift?.code ?? null,
+    hours: Number(r.hours),
+    note: r.note,
+  }));
 }

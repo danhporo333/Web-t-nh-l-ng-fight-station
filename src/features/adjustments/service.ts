@@ -1,0 +1,73 @@
+import { fail, ok, type ActionResult } from "@/lib/result";
+import {
+  deleteAdjustmentById,
+  findActiveStaff,
+  findAdjustmentId,
+  findAdjustmentsByMonth,
+  findUserRole,
+  insertAdjustment,
+  sumAdjustmentsByUserAndType,
+  updateAdjustmentById,
+} from "./queries";
+import type { AdjustmentInput, AdjustmentItem, StaffOption } from "./types";
+
+type Row = Awaited<ReturnType<typeof findAdjustmentsByMonth>>[number];
+
+function toItem(row: Row): AdjustmentItem {
+  return {
+    id: row.id,
+    userId: row.userId,
+    fullName: row.user.fullName,
+    date: row.date.toISOString().slice(0, 10),
+    type: row.type,
+    amount: row.amount,
+    reason: row.reason,
+  };
+}
+
+const NOT_FOUND = () => fail("ADJ_003", "Không tìm thấy khoản thưởng phạt");
+
+export async function listAdjustments(month: string, userId?: number): Promise<AdjustmentItem[]> {
+  return (await findAdjustmentsByMonth(month, userId)).map(toItem);
+}
+
+export function getStaffOptions(): Promise<StaffOption[]> {
+  return findActiveStaff();
+}
+
+export async function createAdjustmentFor(input: AdjustmentInput): Promise<ActionResult<AdjustmentItem>> {
+  const user = await findUserRole(input.userId);
+  if (!user || user.role !== "STAFF") return fail("STAFF_002", "Không tìm thấy nhân viên");
+  return ok(toItem(await insertAdjustment(input)));
+}
+
+export async function updateAdjustmentFor(
+  id: number,
+  input: Omit<AdjustmentInput, "userId">,
+): Promise<ActionResult<AdjustmentItem>> {
+  if (!(await findAdjustmentId(id))) return NOT_FOUND();
+  return ok(toItem(await updateAdjustmentById(id, input)));
+}
+
+export async function deleteAdjustmentFor(id: number): Promise<ActionResult<{ deleted: true }>> {
+  if (!(await findAdjustmentId(id))) return NOT_FOUND();
+  await deleteAdjustmentById(id);
+  return ok({ deleted: true });
+}
+
+// Tổng thưởng và phạt của từng nhân viên trong tháng (chỉ người có khoản). Dùng cho bảng lương.
+export async function getAdjustmentTotals(
+  month: string,
+  userId?: number,
+): Promise<{ userId: number; bonus: number; penalty: number }[]> {
+  const sums = await sumAdjustmentsByUserAndType(month, userId);
+  const byUser = new Map<number, { userId: number; bonus: number; penalty: number }>();
+  for (const sum of sums) {
+    const entry = byUser.get(sum.userId) ?? { userId: sum.userId, bonus: 0, penalty: 0 };
+    const amount = sum._sum.amount ?? 0;
+    if (sum.type === "BONUS") entry.bonus += amount;
+    else entry.penalty += amount;
+    byUser.set(sum.userId, entry);
+  }
+  return [...byUser.values()];
+}

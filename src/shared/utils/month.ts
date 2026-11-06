@@ -1,4 +1,5 @@
 // Tháng dạng "YYYY-MM", múi giờ Asia/Ho_Chi_Minh.
+import { dateToDb } from "./date";
 
 const MONTH_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
 
@@ -36,4 +37,9 @@ export function currentMonth(now: Date = new Date()): string {
 export function formatMonthLabel(month: string): string {
   const [year, mon] = month.split("-");
   return `Tháng ${Number(mon)}/${year}`;
+}
+
+// Khoảng của một tháng: >= start và < end (end là đầu tháng sau, không gồm).
+export function monthRange(month: string): { start: Date; end: Date } {
+  return { start: dateToDb(`${month}-01`), end: dateToDb(`${nextMonth(month)}-01`) };
 }

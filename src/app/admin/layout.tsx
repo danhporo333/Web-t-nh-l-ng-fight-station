@@ -13,7 +13,9 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
         nav={[
           { href: "/admin", label: "Tổng quan" },
           { href: "/admin/staff", label: "Nhân viên" },
+          { href: "/admin/payroll", label: "Bảng lương" },
           { href: "/admin/attendance", label: "Chấm công" },
+          { href: "/admin/adjustments", label: "Thưởng phạt" },
           { href: "/admin/rates", label: "Mức lương" },
           { href: "/admin/shifts", label: "Cài đặt ca" },
           { href: "/change-password", label: "Đổi mật khẩu" },

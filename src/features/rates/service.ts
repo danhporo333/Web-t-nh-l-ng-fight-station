@@ -78,3 +78,9 @@ export async function saveRatesFor(
   }
   return ok({ saved: entries.length });
 }
+
+// Mức lương của mọi nhân viên có dòng trong tháng, kể cả người đã nghỉ việc. Dùng cho bảng lương.
+export async function getRatesForMonth(month: string, userId?: number): Promise<(RatePair & { userId: number })[]> {
+  const rows = await findRatesByMonth(month);
+  return rows.filter((r) => userId === undefined || r.userId === userId);
+}
