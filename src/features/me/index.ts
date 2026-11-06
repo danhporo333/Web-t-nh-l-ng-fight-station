@@ -1,2 +1,3 @@
 // Nơi duy nhất feature me export ra ngoài.
-export {};
+export { getMyPayroll } from "./service";
+export { MyPayroll } from "./components/my-payroll";

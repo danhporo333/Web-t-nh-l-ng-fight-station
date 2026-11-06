@@ -142,7 +142,7 @@ Thiết kế ưu tiên điện thoại: một cột, nút lớn, không cuộn n
 
 Chưa làm:
 - Chưa kết nối MySQL thật, chưa chạy `prisma db push`.
-- Đã có quản lý nhân viên (`/admin/staff`), mức lương theo tháng (`/admin/rates`), cài đặt ca (`/admin/shifts`), chấm công (`/admin/attendance`), thưởng phạt (`/admin/adjustments`) và bảng lương (`/admin/payroll`). Chưa có màn hình `/me` cho nhân viên.
+- Đã có quản lý nhân viên (`/admin/staff`), mức lương theo tháng (`/admin/rates`), cài đặt ca (`/admin/shifts`), chấm công (`/admin/attendance`), thưởng phạt (`/admin/adjustments`), bảng lương (`/admin/payroll`) và màn hình Lương của tôi (`/me`).
 - Đã có đăng nhập, đăng xuất, đổi mật khẩu (feature auth). Chưa thử tay trên trình duyệt.
 - Chưa đưa lên GitHub và Vercel.
 
