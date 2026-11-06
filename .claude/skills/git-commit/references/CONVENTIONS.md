@@ -1,132 +1,161 @@
-# Quy ước Commit - Web tính lương Fight Station
+# Quy ước commit của web tính lương Fight Station
+
+Đặt file này ở `.claude/skills/git-commit/references/conventions.md`.
+
+Repo là **một ứng dụng Next.js** (Next.js 16 + Prisma + MySQL), tài liệu ở `docs/`, code ở `src/`, schema ở `prisma/`.
+
+**Toàn bộ commit message viết bằng tiếng Việt có dấu**, kể cả loại commit. Chỉ giữ nguyên các tên riêng trong code: tên feature/thư mục (`rates`, `payroll`), tên file, tên hàm, tên thư viện (`Prisma`, `Next.js`, `Vercel`).
 
 ## Định dạng
 
 ```
-<type>(<scope>): <subject>
+<loại>(<phạm vi>): <mô tả ngắn>
 
-<body>
+<nội dung>
 
-<footer>
+<chân trang>
 ```
 
-## Loại Commit (type)
+- `loại`: chọn từ bảng bên dưới, viết thường.
+- `phạm vi`: tên feature hoặc khu vực code, viết thường (xem mục "Nhận diện phạm vi").
+- `mô tả ngắn`, `nội dung`, `chân trang`: tiếng Việt có dấu.
+
+## Các loại commit
 
 | Loại | Khi nào dùng | Ví dụ thay đổi |
-|------|------------|----------------|
-| `feat` | Tính năng mới | Thêm quản lý nhân viên, bảng lương, chấm công |
-| `fix` | Sửa lỗi | Sửa tính lương, sửa logic đăng nhập, xử lý trường hợp đặc biệt |
-| `refactor` | Tái cấu trúc (không đổi hành vi) | Sắp xếp lại queries, tách hàm, đổi tên |
-| `docs` | Tài liệu | SPEC.md, context.md, comment, docs feature |
-| `style` | Định dạng (không đổi code) | Prettier, eslint fixes, khoảng trắng |
-| `test` | Thêm/cập nhật test | Các file test, vitest specs |
-| `chore` | Bảo trì | Dependencies, configs, scripts |
-| `perf` | Tối ưu hiệu suất | Tối ưu queries, giảm payload |
-| `ci` | CI/CD | GitHub Actions, Vercel config |
-| `build` | Hệ thống build | tsconfig, next.config.ts, setup Prisma |
-| `seed` | Seed database | seed.ts, dữ liệu ban đầu |
-| `revert` | Hoàn tác commit | Undo commit trước |
+|------|--------------|----------------|
+| `tính năng` | Tính năng mới | Thêm trang, Server Action, bảng hoặc cột Prisma mới |
+| `sửa lỗi` | Sửa lỗi | Sửa tính sai lương, sửa logic sai, xử lý trường hợp biên |
+| `tái cấu trúc` | Sắp xếp lại code, không đổi hành vi | Đổi tên, tách hàm, chuyển file |
+| `tài liệu` | Tài liệu | `README.md`, `context.md`, `CLAUDE.md`, `docs/*` |
+| `định dạng` | Định dạng, không đổi code | Prettier, sửa lỗi ESLint, khoảng trắng |
+| `kiểm thử` | Thêm hoặc sửa test | File `*.test.ts` (Vitest) |
+| `bảo trì` | Việc lặt vặt, bảo trì | Thư viện, script, `.env.example`, skill trong `.claude/` |
+| `hiệu năng` | Cải thiện hiệu năng | Giảm số truy vấn Prisma, thêm index |
+| `đóng gói` | Build và triển khai | `next.config.ts`, `tsconfig.json`, `vercel.json` |
+| `hoàn tác` | Hoàn tác commit | Hoàn tác một commit trước đó |
 
-## Tự động phát hiện loại commit
+## Tự nhận diện loại
 
-| File/nội dung thay đổi | Loại phát hiện |
-|-----------------------|----------------|
-| `*.spec.ts`, `*.test.ts` chỉ | `test` |
-| `docs/*.md` hoặc `**/context.md` chỉ | `docs` |
-| `package.json`, `tsconfig.json`, `next.config.ts` chỉ | `chore` |
-| `prisma/schema.prisma`, `prisma/seed.ts` | `build` hoặc `seed` |
-| `.github/workflows/*` | `ci` |
-| File feature mới (actions.ts, service.ts, v.v.) | `feat` |
-| Sửa lỗi logic hiện tại, error handling | `fix` |
-| Đổi tên, di chuyển file, không thay logic | `refactor` |
+| File hoặc nội dung thay đổi | Loại |
+|-----------------------------|------|
+| Chỉ có `*.test.ts` | `kiểm thử` |
+| Chỉ có `*.md` (`README.md`, `context.md`, `CLAUDE.md`, `docs/`) | `tài liệu` |
+| Chỉ có `package.json`, `package-lock.json`, `eslint.config.mjs`, `.env.example` | `bảo trì` |
+| Chỉ có `.claude/` (skill, settings) | `bảo trì` |
+| `next.config.ts`, `tsconfig.json`, `vercel.json` | `đóng gói` |
+| Thêm bảng hoặc cột trong `prisma/schema.prisma` | `tính năng` |
+| File mới và export mới trong `src/features/` (trang, action, component) | `tính năng` |
+| Sửa logic có sẵn, xử lý lỗi, sửa công thức lương | `sửa lỗi` |
+| Đổi tên, di chuyển file, không đổi logic | `tái cấu trúc` |
 
-## Phát hiện Scope
+Bỏ qua thư mục sinh tự động khi nhận diện: `.next/`, `node_modules/`. Nếu chúng bị stage thì cảnh báo người dùng.
 
-Các feature trong dự án: `auth`, `staff`, `shifts`, `rates`, `attendance`, `adjustments`, `payroll`, `me`
+## Nhận diện phạm vi
 
-| Đường dẫn file | Scope |
-|-----------|-------|
-| `src/features/auth/*` | `auth` |
-| `src/features/staff/*` | `staff` |
-| `src/features/shifts/*` | `shifts` |
-| `src/features/rates/*` | `rates` |
-| `src/features/attendance/*` | `attendance` |
-| `src/features/adjustments/*` | `adjustments` |
-| `src/features/payroll/*` | `payroll` |
-| `src/features/me/*` | `me` |
-| `src/lib/*`, `src/shared/*` | `shared` |
-| `src/app/*` | không ghi scope |
-| Nhiều feature | không ghi scope hoặc dùng `core` |
+| Đường dẫn file | Phạm vi |
+|----------------|---------|
+| `src/features/<tên>/*` | `<tên>` (ví dụ `rates`, `payroll`) |
+| `src/app/<route>/*` thuộc một feature | `<tên>` của feature đó |
+| `proxy.ts` | `auth` |
+| `prisma/*` đi kèm một feature | `<tên>` của feature đó |
+| `prisma/*` đứng riêng | `csdl` |
+| `src/lib/*` | `lib` |
+| `src/shared/*` | `shared` |
+| `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/globals.css` | `app` |
+| `docs/API_SPEC.md` | `api` |
+| `docs/DATABASE..md` | `csdl` |
+| `docs/SPEC.md`, `docs/PROJECT-RULES.md`, `docs/ARCHITECTURE.md`, `docs/SETUP-NOTES.md` | bỏ phạm vi |
+| `.claude/*` | `claude` |
+| Cấu hình gốc (`package.json`, `next.config.ts`, ...) | bỏ phạm vi |
+| Nhiều feature không liên quan | bỏ phạm vi, hoặc gợi ý tách commit |
 
-## Quy tắc tiêu đề (subject)
+Các feature hiện có: `auth`, `staff`, `shifts`, `rates`, `attendance`, `adjustments`, `payroll`, `me`.
 
-- Động từ bắt đầu: "add" không phải "adds" hay "added"
-- Chữ thường ở đầu
-- Không dấu chấm ở cuối
-- Tối đa 50 ký tự
-- Hoàn thành câu: "Commit này sẽ..."
+## Quy tắc mô tả ngắn
 
-## Quy tắc phần body
+- Bắt đầu bằng động từ: "thêm", "sửa", "xóa", "cập nhật", "tách", "đổi tên", "chép"…
+- Viết thường chữ cái đầu (trừ tên riêng như `README`, `Prisma`, `Vercel`).
+- Không chấm câu ở cuối.
+- Tối đa 72 ký tự tính cả `loại(phạm vi): `.
+- Đọc liền thành câu: "Commit này sẽ… <mô tả ngắn>".
 
-- Cách tiêu đề bằng một dòng trống
-- Gấp lại ở 72 ký tự
-- Giải thích CÁI GÌ và TẠI SAO, không phải CÁCH THẾ NÀO
-- Dùng bullet points cho nhiều thay đổi
-- Tham chiếu yêu cầu từ SPEC.md nếu liên quan
+## Quy tắc nội dung
+
+- Cách dòng mô tả ngắn một dòng trống.
+- Xuống dòng ở khoảng 72 ký tự.
+- Giải thích **làm gì** và **tại sao**, không cần giải thích **làm thế nào**.
+- Nhiều thay đổi thì dùng gạch đầu dòng.
+- Với thay đổi liên quan tính lương: ghi rõ quy tắc nghiệp vụ bị ảnh hưởng (ví dụ "ca chiều tính vào ngày bắt đầu ca").
+
+## Chân trang
+
+- Liên kết issue: `Liên quan: #12`.
+- Thay đổi phá vỡ tương thích: thêm `!` sau phạm vi và dòng `PHÁ VỠ TƯƠNG THÍCH: <giải thích>`.
 
 ## Ví dụ
 
 ### Tính năng đơn giản
 ```
-feat(staff): thêm trang quản lý nhân viên
-
-- Tạo danh sách nhân viên (tạo/sửa/xóa)
-- Thêm chức năng đặt lại mật khẩu
-- Bật/tắt trạng thái hoạt động của nhân viên
+tính năng(rates): chép mức lương từ tháng trước
 ```
 
-### Sửa tính lương
+### Tính năng có nội dung
 ```
-fix(payroll): sửa tính lương cho nhân viên làm nửa ngày
+tính năng(staff): thêm ô lương mặc định mọi ca
 
-Giờ không được làm tròn đúng, gây ra
-chênh lệch tiền trong các batch lớn.
-
-Sửa theo quy tắc SPEC.md phần 3.
-```
-
-### Chấm công theo ngày
-```
-feat(attendance): triển khai chấm công từng ngày
-
-- Thêm schema bảng work_entries
-- Tạo form chấm công với lựa chọn ca
-- Tự điền giờ mặc định theo ca
-- Cho phép đánh dấu ngày Off
+- Thêm cột users.default_rate (có thể trống)
+- Form tạo và sửa nhân viên nhận defaultRate
+- Tháng đầu tiên lấy mức này cho cả hai ca
 ```
 
-### Chép lương khi sang tháng mới
+### Sửa lỗi
 ```
-feat(rates): tự chép lương khi sang tháng mới
+sửa lỗi(payroll): tính thưởng phạt đúng tháng
 
-- Chép lương tháng trước cho tất cả nhân viên
-- Fallback đến default_rate nếu chưa có
-- Fallback đến shift default_rate nếu cần
-```
+Khoản ghi ngày cuối tháng bị tính sang tháng sau vì so sánh
+ngày theo giờ địa phương. Đổi sang khoảng [đầu tháng, đầu
+tháng sau) theo giờ UTC.
 
-### Nhiều feature (tránh nếu có thể)
-```
-refactor: sắp xếp export và import của feature
-
-- Thêm index.ts cho mỗi feature
-- Di chuyển kiểm tra auth chung vào lib/auth.ts
-- Cập nhật import trên toàn dự án
+Liên quan: #7
 ```
 
-### Breaking change
+### Kiểm thử
 ```
-feat(payroll)!: đổi tính lương sang dùng Decimal
+kiểm thử(payroll): thêm test tính lương hai ca trong ngày
+```
 
-BREAKING CHANGE: Tất cả số tiền giờ dùng
-Decimal(10,2) thay vì Int. Cần migration.
+### Tài liệu
 ```
+tài liệu: cập nhật quy tắc lương mặc định theo nhân viên
+```
+
+### Thay đổi phá vỡ tương thích
+```
+tái cấu trúc(csdl)!: đổi tên cột morning_rate thành rate_morning
+
+PHÁ VỠ TƯƠNG THÍCH: cần chạy lại npm run db:push và cập nhật
+mọi truy vấn dùng cột cũ.
+```
+
+### Thay đổi chung
+```
+tái cấu trúc(shared): gom hàm định dạng tiền vào shared/utils
+
+- Chuyển formatMoney sang shared/utils
+- Cập nhật import ở rates, payroll, me
+```
+
+### Nhiều phạm vi (hạn chế dùng)
+```
+bảo trì: cập nhật thư viện
+
+- Nâng Prisma lên bản mới
+- Nâng Next.js lên bản mới
+```
+
+## Không được commit
+
+- `.env`, `.env.local` hoặc bất kỳ file chứa mật khẩu, chuỗi kết nối, `SESSION_SECRET` thật. Chỉ `.env.example` được commit.
+- `node_modules/`, `.next/`.
+- File dữ liệu thật của nhân viên (lương, mật khẩu).

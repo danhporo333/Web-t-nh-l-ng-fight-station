@@ -1,126 +1,93 @@
 ---
-name: git-commit
-description: >
-  Viết conventional commit messages cho ứng dụng tính lương Fight Station.
-  Dùng khi user nói "commit", "save changes", "tạo commit", hoặc hoàn thành task.
-argument-hint: "[type] [scope] [message]"
-allowed-tools:
-  - Bash
-  - Read
+name: "git-commit"
+description: "Viết commit message hoàn toàn bằng tiếng Việt (loại, mô tả, nội dung) cho web tính lương Fight Station. Dùng khi nói commit, tạo commit, viết commit message, lưu thay đổi."
 ---
 
-# Commit Helper cho Fight Station
+# Tạo commit message
 
-Viết commit rõ ràng, theo quy tắc dự án.
+Skill cho dự án web tính lương Fight Station (một ứng dụng Next.js + Prisma + MySQL). Quy ước chi tiết nằm ở `./references/conventions.md`. Nếu không thấy file này, dùng mục Git workflow trong `docs/PROJECT-RULES.md` và báo người dùng thiếu file.
 
 ## Cách dùng
 
 ```
-/commit                               → Tự phát hiện type từ các thay đổi
-/commit feat staff thêm quản lý nhân viên     → Nhanh: type + scope + message
-/commit fix payroll sửa tính lương → Sửa lỗi cụ thể
-/commit --amend                       → Sửa commit cuối
+/git-commit                                → Tự nhận diện loại từ thay đổi
+/git-commit tính năng thêm ô lương mặc định → Commit nhanh với loại + mô tả
+/git-commit --amend                        → Sửa message của commit gần nhất
 ```
 
-## Ví dụ nhanh cho dự án này
+## Quy trình
 
-```
-/commit feat staff thêm trang quản lý nhân viên
-    ↓ thành:
-feat(staff): thêm trang quản lý nhân viên
-
-- Tạo danh sách nhân viên (tạo/sửa/xóa)
-- Thêm chức năng đặt lại mật khẩu
-- Bật/tắt trạng thái hoạt động
-
-/commit fix attendance sửa tính giờ
-/commit feat rates tự chép lương khi sang tháng mới
-/commit feat payroll thêm bảng tóm tắt lương hàng tháng
-/commit docs cập nhật SPEC cho feature thưởng phạt
-```
-
-## Luồng công việc
-
-1. **Kiểm tra staged changes**:
+1. **Kiểm tra thay đổi đã stage**:
    ```bash
    git diff --staged --stat
    ```
-   - Nếu chưa stage → gợi ý `git add <files>` trước
+   - Nếu chưa stage gì → gợi ý người dùng chạy `git add` trước (không tự add).
 
-2. **Đọc quy ước dự án**: `docs/CONVENTIONS.md`
+2. **Kiểm tra an toàn trên file đã stage.** Nếu có mục nào dưới đây thì cảnh báo, dừng lại và không commit:
+   - `.env`, `.env.local` (chỉ `.env.example` được commit).
+   - `node_modules/`, `.next/`.
+   - Chuỗi giống mật khẩu, chuỗi kết nối MySQL thật (`mysql://user:matkhau@...`), `SESSION_SECRET` thật.
 
-3. **Phân tích thay đổi**:
+3. **Đọc quy ước dự án**: `CLAUDE.md` ở gốc (mục commit nếu có) và `./references/conventions.md`.
+
+4. **Phân tích thay đổi**:
    ```bash
    git diff --staged
    ```
 
-4. **Phát hiện scope từ feature**:
-   - `src/features/auth/` → `(auth)`
-   - `src/features/staff/` → `(staff)`
-   - `src/features/payroll/` → `(payroll)`
-   - v.v.
+5. **Nhận diện loại và phạm vi** từ file và nội dung thay đổi (xem `./references/conventions.md`). Phạm vi lấy theo feature: `auth`, `staff`, `shifts`, `rates`, `attendance`, `adjustments`, `payroll`, `me`; hoặc `lib`, `shared`, `app`, `csdl`, `api`, `claude`.
+   - Nếu thay đổi gồm nhiều việc không liên quan (ví dụ vừa thêm feature `rates` vừa sửa config ESLint) → gợi ý tách thành nhiều commit.
 
-5. **Phát hiện type** từ file thay đổi:
-   - File feature mới → `feat`
-   - Lỗi logic hiện tại → `fix`
-   - Đổi tên/sắp xếp → `refactor`
-   - Chỉ `docs/*.md` hoặc `context.md` → `docs`
+6. **Nhắc theo nghiệp vụ (không chặn, chỉ nhắc):**
+   - Sửa `src/features/payroll/` hoặc hàm `calculatePay` mà không có file test nào được stage cùng: nhắc "Thay đổi tính lương nên có test".
+   - Sửa `prisma/schema.prisma`: nhắc "Nhớ cập nhật `docs/DATABASE..md` và chạy lại `npm run db:push`".
 
-6. **Tạo message** → hiển thị xem trước:
+7. **Sinh message** → hiển thị bản xem trước:
 
    ```
    📝 XEM TRƯỚC COMMIT
-   
-   feat(staff): thêm trang quản lý nhân viên
-   
-   - Tạo danh sách nhân viên (tạo/sửa/xóa)
-   - Thêm chức năng đặt lại mật khẩu
-   - Bật/tắt trạng thái hoạt động
-   
-   Staged files (4):
-     A src/features/staff/actions.ts
-     A src/features/staff/components/staff-list.tsx
-     A src/features/staff/service.ts
-     A src/features/staff/queries.ts
-   
-   Tạo commit? (có/không/sửa)
+
+   tính năng(staff): thêm ô lương mặc định mọi ca
+
+   - Thêm cột users.default_rate (có thể trống)
+   - Form tạo và sửa nhân viên nhận defaultRate
+   - Cập nhật context.md của staff
+
+   File đã stage (4):
+     M prisma/schema.prisma
+     M src/features/staff/actions.ts
+     A src/features/staff/schemas.ts
+     M src/features/staff/context.md
+
+   Commit? (có/không/sửa)
    ```
 
-7. **Thực thi sau khi xác nhận**:
-   - `có` → commit với attribution cho Claude Haiku 4.5
-   - `sửa` → user sửa message, rồi commit
-   - `không` → hủy
+8. **Thực thi sau khi người dùng xác nhận**:
+   - `có` → `git commit` với message đã xem trước (message nhiều dòng thì truyền qua heredoc).
+   - `sửa` → người dùng sửa message, rồi mới commit.
+   - `không` → hủy.
 
-## Trường hợp đặc biệt
+## Commit nhanh
 
-### Setup database
+Bỏ qua bước xem trước khi commit đơn giản và người dùng đã đưa sẵn loại + mô tả (vẫn chạy bước kiểm tra an toàn):
+
 ```
-/commit build setup Prisma schema
-    → (áp dụng cho schema.prisma)
-
-/commit seed khởi tạo dữ liệu mặc định
-    → (áp dụng cho prisma/seed.ts)
-```
-
-### Tính lương
-Luôn tham chiếu SPEC.md phần 3:
-```
-/commit fix payroll sửa làm tròn giờ thập phân
+/git-commit tài liệu cập nhật SPEC.md
+    ↓
+git commit -m "tài liệu: cập nhật SPEC.md"
 ```
 
-### Context.md của feature
-Cập nhật context.md khi feature thay đổi:
-```
-/commit docs cập nhật tài liệu feature staff
-```
+Nếu người dùng gõ loại bằng tiếng Anh (`feat`, `fix`...) → tự đổi sang loại tiếng Việt tương ứng trong `./references/conventions.md`.
 
 ## Quy tắc
 
-- **Features**: `auth`, `staff`, `shifts`, `rates`, `attendance`, `adjustments`, `payroll`, `me`
-- **Scope từ đường dẫn**: `src/features/attendance/` → `(attendance)`
-- **Chữ thường**: Type và scope luôn chữ thường
-- **Không dấu chấm**: Không có dấu `.` ở cuối subject
-- **Động từ bắt đầu**: "add" không phải "added", "fix" không phải "fixed"
-- **Tham chiếu SPEC.md**: Khi sửa tính toán hoặc logic nghiệp vụ
-- **Quy tắc 50/72**: Subject ≤50 ký tự, body gấp ở 72
-- **Không nhạy cảm**: Không bao gồm mật khẩu, hash, secret
+- **Chỉ viết tiếng Việt có dấu**: cả loại, mô tả ngắn, nội dung và chân trang. Chỉ giữ nguyên tên riêng trong code (tên feature, file, hàm, thư viện).
+- **Chỉ commit file đã stage**: không bao giờ tự `git add`.
+- **Không tự push.** Chỉ push khi người dùng yêu cầu.
+- **Phạm vi lấy từ đường dẫn**: `src/features/rates/` → `(rates)`; chi tiết ở `./references/conventions.md`.
+- **Viết thường** loại và phạm vi.
+- **Mô tả ngắn bắt đầu bằng động từ**: "thêm", "sửa", "xóa", "cập nhật", "tách", "chép"...
+- **Không chấm câu** ở cuối mô tả ngắn.
+- **Độ dài**: dòng đầu (cả phần `loại(phạm vi): `) ≤ 72 ký tự, nội dung xuống dòng ở khoảng 72 ký tự.
+- **Không ghi** mật khẩu, chuỗi kết nối hay chuỗi bí mật vào message.
+- **Không dùng** `--no-verify` hay bỏ qua hook trừ khi người dùng yêu cầu rõ. Không sửa commit đã push trừ khi người dùng yêu cầu.

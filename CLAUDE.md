@@ -4,6 +4,10 @@ Web tính lương theo giờ, theo ca cho nhân viên quán Fight Station. Chủ
 
 File này chỉ để **điều hướng**. Thông tin chi tiết nằm ở file được trỏ tới bên dưới; đọc đúng file khi cần.
 
+## ngôn ngữ
+
+Luôn trả lời và giải thích bằng tiếng Việt, kể cả khi người dùng hỏi bằng tiếng Anh. Giữ nguyên tên kỹ thuật bằng tiếng Anh (tên hàm, tên file, lệnh, thuật ngữ như Server Action, commit). Commit message viết hoàn toàn bằng tiếng Việt có dấu, kể cả loại commit (xem /git-commit).Luôn trả lời và giải thích bằng tiếng Việt, kể cả khi người dùng hỏi bằng tiếng Anh. Giữ nguyên tên kỹ thuật bằng tiếng Anh (tên hàm, tên file, lệnh, thuật ngữ như Server Action, commit). Nội dung commit (subject và body) viết tiếng Việt, type và scope viết tiếng Anh.
+
 ## Cần gì, đọc ở đâu
 
 | Cần | Đọc |

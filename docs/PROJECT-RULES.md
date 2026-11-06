@@ -99,7 +99,7 @@ export async function saveDayEntries(_prev: ActionResult | undefined, formData: 
 ## 7. Git workflow
 
 - Nhánh: `feat/<feature>-<mo-ta>`, `fix/<mo-ta>`, `chore/<mo-ta>`. Ví dụ `feat/rates-copy-month`.
-- Commit: `<loai>(<feature>): <mo ta ngan>`. Ví dụ `feat(attendance): tự điền giờ mặc định khi tích ca`.
+- Commit: viết hoàn toàn bằng tiếng Việt có dấu, kể cả loại: `<loại>(<phạm vi>): <mô tả ngắn>`. Ví dụ `tính năng(attendance): tự điền giờ mặc định khi tích ca`. Chi tiết ở `.claude/skills/git-commit/references/conventions.md`.
 - PR: một feature hoặc một lỗi mỗi PR, kèm mô tả và cách kiểm tra. Build phải xanh.
 - Không commit `.env`. `.env.example` thì được.
 
