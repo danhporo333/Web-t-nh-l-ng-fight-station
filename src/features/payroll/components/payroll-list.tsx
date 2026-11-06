@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { PayrollRow } from "../types";
+import { PayrollCardLink } from "./payroll-card-link";
 import { PayrollFigures } from "./payroll-figures";
 
 type PayrollListProps = { month: string; rows: PayrollRow[] };
@@ -12,10 +12,7 @@ export function PayrollList({ month, rows }: PayrollListProps) {
     <ul className="flex flex-col gap-3">
       {rows.map((row) => (
         <li key={row.userId}>
-          <Link
-            href={`/admin/payroll/${row.userId}?month=${month}`}
-            className="card block transition hover:border-red-300 hover:shadow-md"
-          >
+          <PayrollCardLink href={`/admin/payroll/${row.userId}?month=${month}`}>
             <div className="mb-3 flex items-center justify-between gap-2">
               <div className="min-w-0">
                 <p className="truncate font-semibold text-stone-900">{row.fullName}</p>
@@ -33,7 +30,7 @@ export function PayrollList({ month, rows }: PayrollListProps) {
               </p>
             )}
             <PayrollFigures row={row} />
-          </Link>
+          </PayrollCardLink>
         </li>
       ))}
     </ul>

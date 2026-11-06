@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireOwner } from "@/lib/auth";
 import { StaffMonthDetailView, getStaffMonthDetail } from "@/features/payroll";
 import { autoEnsureMonthRates } from "@/features/rates";
 import { MonthPicker } from "@/shared/components/month-picker";
+import { PendingLink } from "@/shared/components/pending-link";
 import { currentMonth, isValidMonth } from "@/shared/utils/month";
 
 export default async function AdminPayrollDetailPage({
@@ -24,9 +24,11 @@ export default async function AdminPayrollDetailPage({
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-5 p-4 sm:p-6">
-      <Link href={`/admin/payroll?month=${month}`} className="text-sm text-stone-600 underline">
-        ← Bảng lương
-      </Link>
+      <div>
+        <PendingLink href={`/admin/payroll?month=${month}`} className="text-sm text-stone-600 underline">
+          ← Bảng lương
+        </PendingLink>
+      </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="page-title">{detail.summary.fullName}</h1>

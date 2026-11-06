@@ -3,6 +3,8 @@
 Bảng lương tháng và chi tiết từng ngày. Hàm thuần calculatePay. Đọc rates, attendance, adjustments qua index.ts. Xem SPEC.md mục 3.
 
 - Trang `/admin/payroll?month=YYYY-MM` (mặc định tháng hiện tại): mỗi nhân viên một thẻ (giờ sáng, giờ chiều, mức, lương ca, thưởng phạt, thực lãnh). Bấm thẻ vào `/admin/payroll/<userId>?month=...` xem từng ngày và từng khoản thưởng phạt kèm lý do.
+- Nút "← Bảng lương" ở trang chi tiết dùng `PendingLink` (shared): vòng xoay giữa màn hình (lớp phủ toàn trang, chặn mọi cú bấm) trong lúc quay về. `PendingLink` có tham số `delayMs` (mặc định 0, không trễ) nếu cần chờ trước khi chuyển trang.
+- Bấm thẻ nhân viên: `PayrollCardLink` (client, `useLinkStatus`, `prefetch={false}`) phủ lớp mờ có vòng xoay "Đang mở..." lên thẻ và chặn bấm thêm cho tới khi trang chi tiết mở xong.
 - `getMonthlyPayroll(month)` và `getStaffMonthDetail(userId, month)` (đọc). Không kiểm quyền bên trong: trang của chủ quán gọi `requireOwner()`; feature `me` sẽ gọi `getStaffMonthDetail` với `userId` lấy từ phiên.
 - Dữ liệu lấy qua `index.ts` của các feature khác: `getMonthHours`, `getUserMonthDays` (attendance), `getRatesForMonth` (rates), `getAdjustmentTotals`, `listAdjustments` (adjustments). Payroll chỉ tự đọc bảng `users` để lấy tên.
 - `calculatePay` (utils.ts, hàm thuần, có test): `shiftPay = round(giờ sáng × mức sáng + giờ chiều × mức chiều)`, `netPay = shiftPay + thưởng − phạt − ăn uống`. Cộng giờ trước, nhân mức và làm tròn một lần.
