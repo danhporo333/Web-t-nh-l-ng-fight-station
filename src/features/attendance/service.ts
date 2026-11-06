@@ -2,6 +2,7 @@ import { fail, ok, type ActionResult } from "@/lib/result";
 import {
   findActiveStaff,
   findEntriesByDate,
+  findOffEntriesInMonth,
   findShifts,
   findStaffByIds,
   findUserEntriesInMonth,
@@ -9,7 +10,7 @@ import {
   sumHoursByUserAndShift,
   type NewEntry,
 } from "./queries";
-import type { DayEntryInput, DayEntryRow, DayRecord, DayView, MonthHours, ShiftEntry } from "./types";
+import type { DayEntryInput, DayEntryRow, DayRecord, DayView, MonthHours, OffDays, ShiftEntry } from "./types";
 
 export async function getDayEntries(date: string): Promise<DayView> {
   const [staff, entries, shifts] = await Promise.all([
@@ -111,4 +112,17 @@ export async function getUserMonthDays(userId: number, month: string): Promise<D
     hours: Number(r.hours),
     note: r.note,
   }));
+}
+
+// Các ngày Off của từng nhân viên trong tháng (chỉ người có ngày Off). Mỗi ngày tối đa một dòng Off.
+export async function getMonthOffDays(month: string): Promise<OffDays[]> {
+  const rows = await findOffEntriesInMonth(month);
+  const byUser = new Map<number, string[]>();
+  for (const r of rows) {
+    const date = r.workDate.toISOString().slice(0, 10);
+    const dates = byUser.get(r.userId) ?? [];
+    if (!dates.includes(date)) dates.push(date);
+    byUser.set(r.userId, dates);
+  }
+  return [...byUser.entries()].map(([userId, dates]) => ({ userId, dates }));
 }

@@ -29,7 +29,7 @@ src/features/<ten-feature>/
 └── context.md        # 5-10 dòng: feature làm gì, bảng nào dùng
 ```
 
-Feature của dự án: `auth`, `staff`, `shifts`, `rates`, `attendance`, `adjustments`, `payroll`, `me`.
+Feature của dự án: `auth`, `staff`, `shifts`, `rates`, `attendance`, `adjustments`, `payroll`, `stats`, `me`.
 Tạo file khi cần, không tạo file rỗng cho đủ bộ.
 
 ## 2. Quy ước đặt tên
@@ -48,7 +48,7 @@ Tạo file khi cần, không tạo file rỗng cho đủ bộ.
 
 - Feature tự đóng gói. Chỉ import từ feature khác qua `index.ts` của nó.
 - Không import vào file nội bộ của feature khác (`@/features/rates/queries` là **sai**, `@/features/rates` là đúng).
-- Feature `payroll` được phép gọi hàm đọc dữ liệu của `rates`, `attendance`, `adjustments` qua `index.ts`. Các feature khác không gọi nhau.
+- Feature `payroll` được phép gọi hàm đọc dữ liệu của `rates`, `attendance`, `adjustments` qua `index.ts`. Feature `stats` được phép gọi hàm đọc của `attendance`, `adjustments`. Feature `me` được phép gọi `getStaffMonthDetail` của `payroll`. Các feature khác không gọi nhau.
 - Code dùng chung đặt ở `src/lib/` (hạ tầng) và `src/shared/` (UI, tiện ích). Không đặt code nghiệp vụ ở đó.
 
 ## 4. Code pattern (BẮT BUỘC)

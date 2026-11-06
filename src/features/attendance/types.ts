@@ -35,3 +35,6 @@ export type DayRecord = {
   hours: number;
   note: string | null;
 };
+
+// Các ngày Off của một nhân viên trong tháng, tăng dần theo ngày.
+export type OffDays = { userId: number; dates: string[] };

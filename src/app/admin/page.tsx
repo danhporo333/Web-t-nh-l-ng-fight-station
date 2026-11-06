@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireOwner } from "@/lib/auth";
 
 const SECTIONS = [
+  { href: "/admin/stats", title: "Thống kê", text: "Ngày nghỉ, lỗi và tiền phạt của từng người theo tháng." },
   { href: "/admin/payroll", title: "Bảng lương", text: "Tổng giờ, thưởng phạt và thực lãnh của mọi người theo tháng." },
   { href: "/admin/staff", title: "Nhân viên", text: "Thêm nhân viên, đặt lại mật khẩu, cho nghỉ việc." },
   { href: "/admin/attendance", title: "Chấm công", text: "Chọn ngày, tích ca sáng, ca chiều hoặc Off cho từng người." },

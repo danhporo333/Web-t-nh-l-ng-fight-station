@@ -5,11 +5,13 @@ import {
   findAdjustmentId,
   findAdjustmentsByMonth,
   findUserRole,
+  findPenaltyCategories,
   insertAdjustment,
+  sumPenaltiesByUserAndCategory,
   sumAdjustmentsByUserAndType,
   updateAdjustmentById,
 } from "./queries";
-import type { AdjustmentInput, AdjustmentItem, StaffOption } from "./types";
+import type { AdjustmentInput, AdjustmentItem, AdjustmentType, PenaltyBreakdown, StaffOption } from "./types";
 
 type Row = Awaited<ReturnType<typeof findAdjustmentsByMonth>>[number];
 
@@ -22,7 +24,13 @@ function toItem(row: Row): AdjustmentItem {
     type: row.type,
     amount: row.amount,
     reason: row.reason,
+    category: row.category ?? null,
   };
+}
+
+// Loại lỗi chỉ có nghĩa với khoản phạt. Khoản thưởng luôn không có loại.
+function withCategoryRule<T extends { type: AdjustmentType; category: string | null }>(input: T): T {
+  return { ...input, category: input.type === "PENALTY" ? input.category : null };
 }
 
 const NOT_FOUND = () => fail("ADJ_003", "Không tìm thấy khoản thưởng phạt");
@@ -38,7 +46,7 @@ export function getStaffOptions(): Promise<StaffOption[]> {
 export async function createAdjustmentFor(input: AdjustmentInput): Promise<ActionResult<AdjustmentItem>> {
   const user = await findUserRole(input.userId);
   if (!user || user.role !== "STAFF") return fail("STAFF_002", "Không tìm thấy nhân viên");
-  return ok(toItem(await insertAdjustment(input)));
+  return ok(toItem(await insertAdjustment(withCategoryRule(input))));
 }
 
 export async function updateAdjustmentFor(
@@ -46,7 +54,7 @@ export async function updateAdjustmentFor(
   input: Omit<AdjustmentInput, "userId">,
 ): Promise<ActionResult<AdjustmentItem>> {
   if (!(await findAdjustmentId(id))) return NOT_FOUND();
-  return ok(toItem(await updateAdjustmentById(id, input)));
+  return ok(toItem(await updateAdjustmentById(id, withCategoryRule(input))));
 }
 
 export async function deleteAdjustmentFor(id: number): Promise<ActionResult<{ deleted: true }>> {
@@ -70,4 +78,21 @@ export async function getAdjustmentTotals(
     byUser.set(sum.userId, entry);
   }
   return [...byUser.values()];
+}
+
+// Các loại lỗi đã dùng, để gợi ý khi nhập khoản phạt mới.
+export async function getCategoryOptions(): Promise<string[]> {
+  const rows = await findPenaltyCategories();
+  return rows.flatMap((r) => (r.category ? [r.category] : []));
+}
+
+// Số lần và tiền phạt của từng nhân viên theo loại lỗi trong tháng. Dùng cho thống kê.
+export async function getPenaltyBreakdown(month: string): Promise<PenaltyBreakdown[]> {
+  const sums = await sumPenaltiesByUserAndCategory(month);
+  return sums.map((s) => ({
+    userId: s.userId,
+    category: s.category,
+    count: s._count._all,
+    amount: s._sum.amount ?? 0,
+  }));
 }

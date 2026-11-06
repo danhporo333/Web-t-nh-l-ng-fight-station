@@ -3,6 +3,8 @@ import {
   AddAdjustmentPanel,
   AdjustmentList,
   AdjustmentSummary,
+  CategoryDatalist,
+  getCategoryOptions,
   getStaffOptions,
   listAdjustments,
 } from "@/features/adjustments";
@@ -15,7 +17,7 @@ export default async function AdminAdjustmentsPage({ searchParams }: PageProps<"
   const { month: monthParam, userId: userIdParam } = await searchParams;
   const month = isValidMonth(monthParam) ? monthParam : currentMonth();
 
-  const staff = await getStaffOptions();
+  const [staff, categories] = await Promise.all([getStaffOptions(), getCategoryOptions()]);
   const userIdNumber = typeof userIdParam === "string" ? Number(userIdParam) : NaN;
   const userId = staff.some((s) => s.id === userIdNumber) ? userIdNumber : undefined;
   const items = await listAdjustments(month, userId);
@@ -46,6 +48,7 @@ export default async function AdminAdjustmentsPage({ searchParams }: PageProps<"
         </button>
       </form>
 
+      <CategoryDatalist categories={categories} />
       <AddAdjustmentPanel staff={staff} defaultUserId={userId} defaultDate={defaultDate} />
       <AdjustmentSummary items={items} />
       <AdjustmentList items={items} />

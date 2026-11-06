@@ -1,11 +1,15 @@
+"use client";
+
+import { useState } from "react";
 import type { AdjustmentItem, AdjustmentType, StaffOption } from "../types";
+import { CATEGORY_LIST_ID } from "./category-datalist";
 
 type AdjustmentFieldsProps = {
   // Có staff thì hiện ô chọn nhân viên (form thêm), không có thì là form sửa
   staff?: StaffOption[];
   defaultUserId?: number;
   defaultDate: string;
-  initial?: Pick<AdjustmentItem, "type" | "amount" | "reason">;
+  initial?: Pick<AdjustmentItem, "type" | "amount" | "reason" | "category">;
 };
 
 const TYPES: { value: AdjustmentType; label: string }[] = [
@@ -14,6 +18,8 @@ const TYPES: { value: AdjustmentType; label: string }[] = [
 ];
 
 export function AdjustmentFields({ staff, defaultUserId, defaultDate, initial }: AdjustmentFieldsProps) {
+  const [type, setType] = useState<AdjustmentType>(initial?.type ?? "PENALTY");
+
   return (
     <>
       {staff && (
@@ -43,13 +49,27 @@ export function AdjustmentFields({ staff, defaultUserId, defaultDate, initial }:
               name="type"
               value={t.value}
               required
-              defaultChecked={(initial?.type ?? "PENALTY") === t.value}
+              checked={type === t.value}
+              onChange={() => setType(t.value)}
               className="sr-only"
             />
             {t.label}
           </label>
         ))}
       </fieldset>
+      {type === "PENALTY" && (
+        <label className="field-label">
+          Loại lỗi (tùy chọn, tự đặt)
+          <input
+            name="category"
+            list={CATEGORY_LIST_ID}
+            maxLength={50}
+            defaultValue={initial?.category ?? ""}
+            placeholder="Ví dụ: đi trễ, nghỉ không phép"
+            className="input"
+          />
+        </label>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="field-label">
           Ngày

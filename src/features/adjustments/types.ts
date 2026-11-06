@@ -8,6 +8,7 @@ export type AdjustmentItem = {
   type: AdjustmentType;
   amount: number;
   reason: string;
+  category: string | null;
 };
 
 export type StaffOption = { id: number; fullName: string };
@@ -18,4 +19,14 @@ export type AdjustmentInput = {
   type: AdjustmentType;
   amount: number;
   reason: string;
+  // Loại lỗi tự đặt, chỉ dùng cho khoản phạt
+  category: string | null;
+};
+
+// Thống kê phạt của một nhân viên theo loại lỗi trong tháng (category null là chưa phân loại).
+export type PenaltyBreakdown = {
+  userId: number;
+  category: string | null;
+  count: number;
+  amount: number;
 };

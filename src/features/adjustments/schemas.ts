@@ -20,6 +20,14 @@ const reasonField = z
   .min(1, "Thiếu lý do")
   .max(255, "Lý do tối đa 255 ký tự");
 
+// Loại lỗi tự đặt: để trống là không phân loại.
+const categoryField = z
+  .string()
+  .trim()
+  .max(50, "Loại lỗi tối đa 50 ký tự")
+  .optional()
+  .transform((v) => (v ? v : null));
+
 const typeField = z.enum(["BONUS", "PENALTY"], { message: "Chọn thưởng hoặc phạt" });
 
 export const createAdjustmentSchema = z.object({
@@ -28,6 +36,7 @@ export const createAdjustmentSchema = z.object({
   type: typeField,
   amount: amountField,
   reason: reasonField,
+  category: categoryField,
 });
 
 export const updateAdjustmentSchema = z.object({
@@ -36,6 +45,7 @@ export const updateAdjustmentSchema = z.object({
   type: typeField,
   amount: amountField,
   reason: reasonField,
+  category: categoryField,
 });
 
 export const deleteAdjustmentSchema = z.object({ id: idField });

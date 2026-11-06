@@ -17,7 +17,7 @@ Luôn trả lời và giải thích bằng tiếng Việt, kể cả khi ngườ
 | Quy ước đặt tên, cấu trúc feature, pattern bắt buộc, anti-pattern, Git, test | [docs/PROJECT-RULES.md](docs/PROJECT-RULES.md) |
 | Cấu trúc thư mục, luồng request, đăng nhập, route, triển khai | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
 | Server Action và hàm đọc theo feature, định dạng kết quả, mã lỗi | [docs/API_SPEC.md](docs/API_SPEC.md) |
-| Một tính năng: `auth`, `staff`, `shifts`, `rates`, `attendance`, `adjustments`, `payroll`, `me` | `src/features/<tên>/context.md` |
+| Một tính năng: `auth`, `staff`, `shifts`, `rates`, `attendance`, `adjustments`, `payroll`, `stats`, `me` | `src/features/<tên>/context.md` |
 | Đã setup những gì, lệnh hay dùng | [docs/SETUP-NOTES.md](docs/SETUP-NOTES.md) (do skill `/init-base-nextjs-app` ghi) |
 | Cách dùng Next.js 16 (khác các bản cũ) | `node_modules/next/dist/docs/` |
 

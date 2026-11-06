@@ -10,6 +10,7 @@ const SELECT = {
   type: true,
   amount: true,
   reason: true,
+  category: true,
   user: { select: { fullName: true } },
 } as const;
 
@@ -65,6 +66,25 @@ export function sumAdjustmentsByUserAndType(month: string, userId?: number) {
   return prisma.adjustment.groupBy({
     by: ["userId", "type"],
     where: { date: { gte: start, lt: end }, ...(userId ? { userId } : {}) },
+    _sum: { amount: true },
+  });
+}
+
+export function findPenaltyCategories() {
+  return prisma.adjustment.findMany({
+    where: { type: "PENALTY", category: { not: null } },
+    select: { category: true },
+    distinct: ["category"],
+    orderBy: { category: "asc" },
+  });
+}
+
+export function sumPenaltiesByUserAndCategory(month: string) {
+  const { start, end } = monthRange(month);
+  return prisma.adjustment.groupBy({
+    by: ["userId", "category"],
+    where: { type: "PENALTY", date: { gte: start, lt: end } },
+    _count: { _all: true },
     _sum: { amount: true },
   });
 }

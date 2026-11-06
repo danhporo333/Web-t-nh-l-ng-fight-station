@@ -14,6 +14,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
           { href: "/admin", label: "Tổng quan" },
           { href: "/admin/staff", label: "Nhân viên" },
           { href: "/admin/payroll", label: "Bảng lương" },
+          { href: "/admin/stats", label: "Thống kê" },
           { href: "/admin/attendance", label: "Chấm công" },
           { href: "/admin/adjustments", label: "Thưởng phạt" },
           { href: "/admin/rates", label: "Mức lương" },

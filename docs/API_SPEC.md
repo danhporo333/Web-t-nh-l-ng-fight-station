@@ -140,7 +140,7 @@ Cột Auth: `Owner` chỉ chủ quán, `User` mọi người đã đăng nhập,
 | Hàm | Loại | Mô tả | Auth |
 | --- | --- | --- | --- |
 | `listAdjustments` | Đọc | Thưởng phạt theo tháng, có thể lọc theo nhân viên | Owner |
-| `createAdjustment` | Action | Thêm thưởng hoặc phạt | Owner |
+| `createAdjustment` | Action | Thêm thưởng hoặc phạt, có thể kèm loại lỗi tự đặt (`category`, chỉ cho khoản phạt) | Owner |
 | `updateAdjustment` | Action | Sửa | Owner |
 | `deleteAdjustment` | Action | Xóa | Owner |
 
@@ -150,6 +150,12 @@ Cột Auth: `Owner` chỉ chủ quán, `User` mọi người đã đăng nhập,
 | --- | --- | --- | --- |
 | `getMonthlyPayroll` | Đọc | Bảng lương mọi nhân viên của một tháng | Owner |
 | `getStaffMonthDetail` | Đọc | Chi tiết từng ngày của một nhân viên trong tháng | Owner |
+
+### stats
+
+| Hàm | Loại | Mô tả | Auth |
+| --- | --- | --- | --- |
+| `getMonthStats` | Đọc | Số ngày nghỉ (Off), số lần và tiền phạt theo loại lỗi của từng nhân viên trong tháng, và tổng theo loại lỗi | Owner |
 
 ### me
 

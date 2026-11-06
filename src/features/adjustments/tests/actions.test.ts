@@ -59,6 +59,7 @@ describe("validate", () => {
       type: "BONUS",
       amount: 50000,
       reason: "làm tốt dịp lễ",
+      category: null,
     });
   });
 });

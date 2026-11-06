@@ -110,6 +110,7 @@ Thưởng và phạt.
 | type | ENUM(BONUS, PENALTY) | bắt buộc | Thưởng hoặc phạt |
 | amount | INT | bắt buộc, luôn dương | Số tiền đồng |
 | reason | VARCHAR(255) | bắt buộc | Ví dụ "đi trễ 30 phút", "làm tốt dịp lễ" |
+| category | VARCHAR(50) | có thể trống | Loại lỗi do chủ quán tự đặt (ví dụ "đi trễ", "nghỉ không phép"), chỉ dùng cho khoản phạt. Dùng để thống kê |
 
 Quy tắc nghiệp vụ:
 - `amount` luôn là số dương. `type` quyết định cộng hay trừ.

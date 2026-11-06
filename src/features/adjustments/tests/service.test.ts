@@ -25,9 +25,10 @@ const row = {
   type: "PENALTY",
   amount: 20000,
   reason: "đi trễ",
+  category: null,
   user: { fullName: "Hoàng" },
 };
-const updateInput = { date: "2026-11-10", type: "PENALTY" as const, amount: 20000, reason: "đi trễ" };
+const updateInput = { date: "2026-11-10", type: "PENALTY" as const, amount: 20000, reason: "đi trễ", category: null };
 const input = { userId: 3, ...updateInput };
 
 function errorCode(r: { success: boolean; error?: { code: string } }) {
@@ -41,7 +42,7 @@ describe("listAdjustments", () => {
     vi.mocked(queries.findAdjustmentsByMonth).mockResolvedValue([row] as never);
     const items = await listAdjustments("2026-11");
     expect(items).toEqual([
-      { id: 1, userId: 3, fullName: "Hoàng", date: "2026-11-10", type: "PENALTY", amount: 20000, reason: "đi trễ" },
+      { id: 1, userId: 3, fullName: "Hoàng", date: "2026-11-10", type: "PENALTY", amount: 20000, reason: "đi trễ", category: null },
     ]);
   });
   it("truyền bộ lọc nhân viên xuống tầng dữ liệu", async () => {

@@ -15,7 +15,8 @@ export function AdjustmentCard({ item }: AdjustmentCardProps) {
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="truncate font-semibold text-stone-900">{item.fullName}</span>
           <span className="truncate text-sm text-stone-500">
-            {`${day}/${month}/${year}`} · {item.reason}
+            {`${day}/${month}/${year}`}
+            {item.category && ` · [${item.category}]`} · {item.reason}
           </span>
         </span>
         <span className={isBonus ? "shrink-0 font-semibold text-green-700" : "shrink-0 font-semibold text-red-700"}>

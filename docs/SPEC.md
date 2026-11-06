@@ -82,7 +82,7 @@ Quản lý bằng Prisma. Schema đầy đủ nằm ở `prisma/schema.prisma`. 
 - **work_entries**: chấm công từng ngày. Cột: `id`, `user_id`, `work_date`, `shift_id` (trống khi Off), `hours`, `is_off`, `note`. Duy nhất theo `(user_id, work_date, shift_id)`.
   - Một người có tối đa một dòng cho mỗi ca trong một ngày.
   - Ngày Off: `is_off = true`, `shift_id` trống, `hours = 0`.
-- **adjustments**: thưởng và phạt. Cột: `id`, `user_id`, `date`, `type` (BONUS/PENALTY), `amount` (số dương), `reason`.
+- **adjustments**: thưởng và phạt. Cột: `id`, `user_id`, `date`, `type` (BONUS/PENALTY), `amount` (số dương), `reason`, `category` (loại lỗi tự đặt, tùy chọn, chỉ cho khoản phạt).
 
 ## 6. Đăng nhập và phân quyền
 
@@ -101,9 +101,10 @@ Quản lý bằng Prisma. Schema đầy đủ nằm ở `prisma/schema.prisma`. 
 1. Danh sách nhân viên: tạo tài khoản (kèm lương mặc định mọi ca, tùy chọn), sửa tên và lương mặc định, đặt lại mật khẩu, cho nghỉ việc.
 2. Mức lương theo tháng: chọn tháng, sửa mức ca sáng và ca chiều của từng người.
 3. Chấm công theo ngày: chọn ngày, tích ca sáng và/hoặc ca chiều cho từng người. Ô giờ tự điền giờ mặc định, chủ quán sửa được. Hoặc tích Off.
-4. Thưởng phạt: thêm, sửa, xóa khoản thưởng hoặc phạt kèm lý do.
+4. Thưởng phạt: thêm, sửa, xóa khoản thưởng hoặc phạt kèm lý do. Số tiền phạt và lý do do chủ quán tự nhập. Khoản phạt có thể gắn loại lỗi tự đặt.
 5. Bảng lương tháng: tổng giờ, thưởng, phạt và thực lãnh của mọi người. Bấm để xem chi tiết từng ngày.
 6. Cài đặt ca: sửa giờ và mức mặc định của hai ca.
+7. Thống kê (`/admin/stats`): theo tháng, số ngày nghỉ (Off), số lần và tiền phạt của từng nhân viên, tách theo loại lỗi, và tổng theo loại lỗi.
 
 **Nhân viên** (`/me`):
 - Lương của tôi: chọn tháng, xem từng ngày đã làm, mức lương, thưởng phạt kèm lý do và tổng tiền.
@@ -132,19 +133,17 @@ Thiết kế ưu tiên điện thoại: một cột, nút lớn, không cuộn n
 
 ## 9. Trạng thái hiện tại
 
-Đã làm (trong thư mục làm việc tạm, chưa chuyển sang thư mục dự án trên máy bạn):
-- Khởi tạo Next.js 16 + Tailwind 4, cài Prisma, bcryptjs, jose (zod và Vitest sẽ cài khi chạy skill `init-base-nextjs-app`).
-- Schema Prisma đầy đủ (năm bảng ở mục 5).
-- Seed: tạo hai ca mặc định và tài khoản chủ quán.
-- Đăng nhập, phiên cookie, kiểm tra quyền, `proxy.ts` chặn trang khi chưa đăng nhập.
-- Trang đăng nhập, trang `/admin` và `/me` (còn là khung, chưa có chức năng).
-- `tsc`, lint và `next build` đều chạy qua.
+Đã làm (có code, kiểm tra bằng `tsc`, lint, `next build` và test Vitest; chưa thử tay đầy đủ trên trình duyệt):
+- Khung dự án, schema Prisma (năm bảng, thêm `users.default_rate` và `adjustments.category`), seed, đã nối MySQL và chạy `prisma db push`.
+- `auth`: đăng nhập, đăng xuất, đổi mật khẩu (`/login`, `/change-password`).
+- Chủ quán: nhân viên (`/admin/staff`), cài đặt ca (`/admin/shifts`), mức lương theo tháng (`/admin/rates`), chấm công (`/admin/attendance`), thưởng phạt kèm loại lỗi tự đặt (`/admin/adjustments`), bảng lương (`/admin/payroll`), thống kê ngày nghỉ, lỗi, phạt (`/admin/stats`).
+- Nhân viên: Lương của tôi (`/me`).
+- Thống kê và loại lỗi được thêm theo yêu cầu bổ sung của khách hàng.
 
 Chưa làm:
-- Chưa kết nối MySQL thật, chưa chạy `prisma db push`.
-- Đã có quản lý nhân viên (`/admin/staff`), mức lương theo tháng (`/admin/rates`), cài đặt ca (`/admin/shifts`), chấm công (`/admin/attendance`), thưởng phạt (`/admin/adjustments`), bảng lương (`/admin/payroll`) và màn hình Lương của tôi (`/me`).
-- Đã có đăng nhập, đăng xuất, đổi mật khẩu (feature auth). Chưa thử tay trên trình duyệt.
-- Chưa đưa lên GitHub và Vercel.
+- Thử tay toàn bộ luồng trên trình duyệt.
+- Giới hạn số lần đăng nhập sai.
+- Đưa lên GitHub và Vercel.
 
 ## 10. Các bước tiếp theo
 

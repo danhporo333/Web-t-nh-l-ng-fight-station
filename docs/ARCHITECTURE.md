@@ -33,7 +33,7 @@ src/
 │   ├── page.tsx           # chuyển hướng theo vai trò
 │   ├── login/
 │   ├── change-password/
-│   ├── admin/             # chủ quán: staff, rates, attendance, adjustments, payroll, shifts
+│   ├── admin/             # chủ quán: staff, rates, attendance, adjustments, payroll, shifts, stats
 │   └── me/                # nhân viên: lương của tôi
 ├── features/              # nghiệp vụ, xem mục 3
 │   ├── auth/
@@ -43,6 +43,7 @@ src/
 │   ├── attendance/
 │   ├── adjustments/
 │   ├── payroll/
+│   ├── stats/
 │   └── me/
 ├── lib/                   # hạ tầng dùng chung
 │   ├── prisma.ts          # PrismaClient duy nhất
@@ -162,6 +163,7 @@ Sau khi ghi, gọi `revalidatePath` cho trang liên quan để dữ liệu mới
 | `/admin/rates` | OWNER | mức lương theo tháng |
 | `/admin/attendance` | OWNER | chấm công theo ngày |
 | `/admin/adjustments` | OWNER | thưởng phạt |
+| `/admin/stats` | OWNER | thống kê ngày nghỉ, lỗi, phạt |
 | `/admin/payroll` | OWNER | bảng lương tháng |
 | `/admin/shifts` | OWNER | cài đặt ca |
 | `/me` | OWNER, STAFF | lương của tôi |

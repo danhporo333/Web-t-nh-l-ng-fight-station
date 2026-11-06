@@ -11,6 +11,7 @@ describe("createAdjustmentSchema", () => {
       type: "PENALTY",
       amount: 20000,
       reason: "đi trễ 30 phút",
+      category: null,
     });
   });
   it.each(["0", "-5", "abc", "12.5", "", "1000000000"])("từ chối số tiền %s", (v) => {

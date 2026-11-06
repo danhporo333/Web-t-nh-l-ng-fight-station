@@ -45,6 +45,7 @@ export async function createAdjustment(
     type: field(formData, "type"),
     amount: field(formData, "amount"),
     reason: field(formData, "reason"),
+    category: field(formData, "category"),
   });
   if (!parsed.success) return invalid(parsed.error.issues, parsed.error.flatten());
   return done(await createAdjustmentFor(parsed.data));
@@ -61,6 +62,7 @@ export async function updateAdjustment(
     type: field(formData, "type"),
     amount: field(formData, "amount"),
     reason: field(formData, "reason"),
+    category: field(formData, "category"),
   });
   if (!parsed.success) return invalid(parsed.error.issues, parsed.error.flatten());
   const { id, ...input } = parsed.data;

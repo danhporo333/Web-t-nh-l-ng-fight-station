@@ -62,3 +62,12 @@ export function findUserEntriesInMonth(userId: number, month: string) {
     orderBy: [{ workDate: "asc" }, { id: "asc" }],
   });
 }
+
+export function findOffEntriesInMonth(month: string) {
+  const { start, end } = monthRange(month);
+  return prisma.workEntry.findMany({
+    where: { isOff: true, workDate: { gte: start, lt: end } },
+    select: { userId: true, workDate: true },
+    orderBy: { workDate: "asc" },
+  });
+}

@@ -84,12 +84,13 @@ model WorkEntry {
 }
 
 model Adjustment {
-  id     Int            @id @default(autoincrement())
-  userId Int            @map("user_id")
-  date   DateTime       @db.Date
-  type   AdjustmentType
-  amount Int
-  reason String         @db.VarChar(255)
+  id       Int            @id @default(autoincrement())
+  userId   Int            @map("user_id")
+  date     DateTime       @db.Date
+  type     AdjustmentType
+  amount   Int
+  reason   String         @db.VarChar(255)
+  category String?        @db.VarChar(50)
 
   user User @relation(fields: [userId], references: [id])
 
