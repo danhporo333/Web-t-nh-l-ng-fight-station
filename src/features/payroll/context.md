@@ -2,7 +2,7 @@
 
 Bảng lương tháng và chi tiết từng ngày. Hàm thuần calculatePay. Đọc rates, attendance, adjustments qua index.ts. Xem SPEC.md mục 3.
 
-- Trang `/admin/payroll?month=YYYY-MM` (mặc định tháng hiện tại): tổng thực lãnh cả tháng, rồi mỗi nhân viên một thẻ (giờ sáng, giờ chiều, mức, lương ca, thưởng phạt, thực lãnh). Bấm thẻ vào `/admin/payroll/<userId>?month=...` xem từng ngày và từng khoản thưởng phạt kèm lý do.
+- Trang `/admin/payroll?month=YYYY-MM` (mặc định tháng hiện tại): mỗi nhân viên một thẻ (giờ sáng, giờ chiều, mức, lương ca, thưởng phạt, thực lãnh). Bấm thẻ vào `/admin/payroll/<userId>?month=...` xem từng ngày và từng khoản thưởng phạt kèm lý do.
 - `getMonthlyPayroll(month)` và `getStaffMonthDetail(userId, month)` (đọc). Không kiểm quyền bên trong: trang của chủ quán gọi `requireOwner()`; feature `me` sẽ gọi `getStaffMonthDetail` với `userId` lấy từ phiên.
 - Dữ liệu lấy qua `index.ts` của các feature khác: `getMonthHours`, `getUserMonthDays` (attendance), `getRatesForMonth` (rates), `getAdjustmentTotals`, `listAdjustments` (adjustments). Payroll chỉ tự đọc bảng `users` để lấy tên.
 - `calculatePay` (utils.ts, hàm thuần, có test): `shiftPay = round(giờ sáng × mức sáng + giờ chiều × mức chiều)`, `netPay = shiftPay + thưởng − phạt − ăn uống`. Cộng giờ trước, nhân mức và làm tròn một lần.
