@@ -53,3 +53,36 @@ body {
     @apply text-2xl font-bold tracking-tight text-stone-900;
   }
 }
+
+/* Thông báo trượt từ phải sang (xem src/shared/components/action-toast.tsx) */
+@keyframes toast-in {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+@layer components {
+  .toast-in {
+    animation: toast-in 0.3s ease-out both;
+  }
+
+  .toast-out {
+    animation: toast-out 0.3s ease-in both;
+  }
+}

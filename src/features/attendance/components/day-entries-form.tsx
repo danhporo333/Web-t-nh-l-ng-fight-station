@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { FormMessage } from "@/shared/components/form-message";
+import { ActionToast } from "@/shared/components/action-toast";
 import { saveDayEntries } from "../actions";
 import type { DayView } from "../types";
 import { AttendanceRow } from "./attendance-row";
@@ -17,7 +17,7 @@ export function DayEntriesForm({ view }: DayEntriesFormProps) {
       {view.rows.map((row) => (
         <AttendanceRow key={row.userId} row={row} defaultHours={view.defaultHours} />
       ))}
-      <FormMessage state={state} successText="Đã lưu chấm công." />
+      <ActionToast state={state} successText="Đã lưu chấm công" />
       <button type="submit" disabled={pending} className="btn-primary sticky bottom-4 shadow-lg">
         {pending ? "Đang lưu..." : "Lưu chấm công"}
       </button>
