@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { updateStaff } from "../actions";
 import type { StaffItem } from "../types";
-import { FormMessage } from "./form-message";
+import { FormMessage } from "@/shared/components/form-message";
 
 type EditStaffFormProps = { staff: StaffItem };
 

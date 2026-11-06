@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { setStaffActive } from "../actions";
-import { FormMessage } from "./form-message";
+import { FormMessage } from "@/shared/components/form-message";
 
 type SetActiveFormProps = { staffId: number; isActive: boolean };
 

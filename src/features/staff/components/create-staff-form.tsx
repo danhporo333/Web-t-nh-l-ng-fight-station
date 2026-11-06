@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { createStaff } from "../actions";
-import { FormMessage } from "./form-message";
+import { FormMessage } from "@/shared/components/form-message";
 
 type CreateStaffFormProps = {
   onDone: () => void;

@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { resetPassword } from "../actions";
-import { FormMessage } from "./form-message";
+import { FormMessage } from "@/shared/components/form-message";
 
 type ResetPasswordFormProps = { staffId: number };
 
