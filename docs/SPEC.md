@@ -33,7 +33,7 @@ Nếu các file lệch nhau: `ARCHITECTURE.md` quyết định cấu trúc thư 
 
 - Mức lương là **riêng cho từng nhân viên, từng ca** (ví dụ: Hoàng ca sáng 26.000, ca chiều 28.000).
 - Mức lương **chỉ thay đổi khi sang tháng mới**. Không tăng giữa tháng.
-- Khi sang tháng mới, hệ thống tự chép mức của tháng trước. Chủ quán chỉ sửa người được tăng.
+- Khi sang tháng mới, hệ thống tự chép mức của tháng trước ngay khi chủ quán mở Chấm công, Mức lương hoặc Bảng lương của tháng hiện tại. Chủ quán chỉ sửa người được tăng. Các tháng khác phải bấm nút tạo.
 - Mỗi nhân viên có thể có **lương mặc định (mọi ca)**, tùy chọn. Ví dụ đặt 27.000đ thì cả ca sáng và ca chiều của người đó đều 27.000đ/giờ. Mức này chỉ dùng để tạo dòng lương của tháng đầu tiên cho người chưa có dòng nào. Sau đó mức từng tháng do chủ quán chỉnh ở màn hình Mức lương, và đổi lương mặc định không làm đổi các tháng đã có.
 - Chủ quán có thể sửa số giờ thực tế của một ca. Ví dụ ca sáng mặc định 8,5 giờ nhưng nhân viên về lúc 13h, thì nhập 5,5 giờ.
 - Một nhân viên có thể làm **cả hai ca trong cùng một ngày**.

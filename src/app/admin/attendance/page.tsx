@@ -1,12 +1,14 @@
 import { requireOwner } from "@/lib/auth";
 import { DayEntriesForm, getDayEntries } from "@/features/attendance";
+import { autoEnsureMonthRates } from "@/features/rates";
 import { DatePicker } from "@/shared/components/date-picker";
-import { isValidDate, todayVN } from "@/shared/utils/date";
+import { isValidDate, monthOfDate, todayVN } from "@/shared/utils/date";
 
 export default async function AdminAttendancePage({ searchParams }: PageProps<"/admin/attendance">) {
   await requireOwner();
   const { date: dateParam } = await searchParams;
   const date = isValidDate(dateParam) ? dateParam : todayVN();
+  await autoEnsureMonthRates(monthOfDate(date));
   const view = await getDayEntries(date);
 
   return (

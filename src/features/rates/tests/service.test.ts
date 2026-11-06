@@ -10,7 +10,7 @@ vi.mock("../queries", () => ({
 }));
 
 import * as queries from "../queries";
-import { ensureMonthRatesFor, getMonthlyRates, saveRatesFor } from "../service";
+import { autoEnsureMonthRates, ensureMonthRatesFor, getMonthlyRates, saveRatesFor } from "../service";
 
 const staff = (id: number, defaultRate: number | null = null) => ({
   id,
@@ -114,5 +114,53 @@ describe("saveRatesFor", () => {
     );
     const r = await saveRatesFor("2026-11", [{ userId: 1, morningRate: 27000, afternoonRate: 29000 }]);
     expect(r.success === false && r.error.code).toBe("RATE_002");
+  });
+});
+
+describe("autoEnsureMonthRates", () => {
+  // 05/11/2026 giờ Việt Nam
+  const now = new Date("2026-11-05T03:00:00Z");
+
+  it("tháng hiện tại: tự tạo mức còn thiếu", async () => {
+    vi.mocked(queries.findActiveStaff).mockResolvedValue([staff(1), staff(2)]);
+    mockMonths({ "2026-10": [{ userId: 1, morningRate: 26000, afternoonRate: 28000 }] });
+
+    const r = await autoEnsureMonthRates("2026-11", now);
+
+    expect(r).toEqual({ created: 2 });
+    expect(queries.insertRates).toHaveBeenCalledTimes(1);
+  });
+
+  it("tháng đã qua hoặc chưa tới: không tự tạo, không đọc DB", async () => {
+    expect(await autoEnsureMonthRates("2026-10", now)).toEqual({ created: 0 });
+    expect(await autoEnsureMonthRates("2026-12", now)).toEqual({ created: 0 });
+    expect(queries.findActiveStaff).not.toHaveBeenCalled();
+    expect(queries.insertRates).not.toHaveBeenCalled();
+  });
+
+  it("đã đủ mức thì không ghi gì, gọi lại nhiều lần vẫn an toàn", async () => {
+    vi.mocked(queries.findActiveStaff).mockResolvedValue([staff(1)]);
+    mockMonths({ "2026-11": [{ userId: 1, morningRate: 24000, afternoonRate: 26000 }] });
+
+    expect(await autoEnsureMonthRates("2026-11", now)).toEqual({ created: 0 });
+    expect(await autoEnsureMonthRates("2026-11", now)).toEqual({ created: 0 });
+    expect(queries.insertRates).not.toHaveBeenCalled();
+  });
+
+  it("thiếu cấu hình ca thì không ném lỗi, trả 0", async () => {
+    vi.mocked(queries.findActiveStaff).mockResolvedValue([staff(1)]);
+    vi.mocked(queries.findShiftDefaultRates).mockResolvedValue({ morning: undefined, afternoon: undefined });
+    mockMonths({});
+
+    expect(await autoEnsureMonthRates("2026-11", now)).toEqual({ created: 0 });
+  });
+
+  it("tháng 31/10 giờ UTC đã sang 01/11 giờ Việt Nam: tính theo giờ Việt Nam", async () => {
+    vi.mocked(queries.findActiveStaff).mockResolvedValue([staff(1)]);
+    mockMonths({});
+    const lateOct = new Date("2026-10-31T20:00:00Z");
+
+    expect((await autoEnsureMonthRates("2026-11", lateOct)).created).toBe(1);
+    expect(await autoEnsureMonthRates("2026-10", lateOct)).toEqual({ created: 0 });
   });
 });

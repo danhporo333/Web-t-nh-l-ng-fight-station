@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { NavLinks } from "./nav-links";
 
 type NavItem = { href: string; label: string };
 
@@ -26,17 +27,7 @@ export function AppHeader({ homeHref, userName, nav, actions }: AppHeaderProps) 
             {actions}
           </div>
         </div>
-        <nav className="-mx-1 flex gap-1 overflow-x-auto">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-100"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <NavLinks items={nav} homeHref={homeHref} />
       </div>
     </header>
   );

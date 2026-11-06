@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireOwner } from "@/lib/auth";
 import { PayrollList, PayrollTotalsCard, getMonthlyPayroll } from "@/features/payroll";
+import { autoEnsureMonthRates } from "@/features/rates";
 import { MonthPicker } from "@/shared/components/month-picker";
 import { currentMonth, formatMonthLabel, isValidMonth } from "@/shared/utils/month";
 
@@ -8,6 +9,7 @@ export default async function AdminPayrollPage({ searchParams }: PageProps<"/adm
   await requireOwner();
   const { month: monthParam } = await searchParams;
   const month = isValidMonth(monthParam) ? monthParam : currentMonth();
+  await autoEnsureMonthRates(month);
   const payroll = await getMonthlyPayroll(month);
 
   return (

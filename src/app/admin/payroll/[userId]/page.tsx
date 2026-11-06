@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireOwner } from "@/lib/auth";
 import { StaffMonthDetailView, getStaffMonthDetail } from "@/features/payroll";
+import { autoEnsureMonthRates } from "@/features/rates";
 import { MonthPicker } from "@/shared/components/month-picker";
 import { currentMonth, isValidMonth } from "@/shared/utils/month";
 
@@ -17,6 +18,7 @@ export default async function AdminPayrollDetailPage({
   if (!Number.isInteger(userId) || userId <= 0) notFound();
   const month = isValidMonth(monthParam) ? monthParam : currentMonth();
 
+  await autoEnsureMonthRates(month);
   const detail = await getStaffMonthDetail(userId, month);
   if (!detail) notFound();
 

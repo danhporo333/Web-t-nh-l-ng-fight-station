@@ -2,7 +2,7 @@
 
 Chấm công theo ngày: ca sáng, ca chiều, Off, sửa giờ. Bảng: work_entries, shifts, users. Xem SPEC.md mục 2.
 
-- Trang `/admin/attendance?date=YYYY-MM-DD` (mặc định hôm nay theo giờ Việt Nam): chọn ngày bằng `DatePicker`, mỗi nhân viên đang làm một thẻ có ba nút Ca sáng, Ca chiều, Off.
+- Trang `/admin/attendance?date=YYYY-MM-DD` (mặc định hôm nay theo giờ Việt Nam): chọn ngày bằng `DatePicker` (nút ‹ ›, hoặc ô lịch: chọn ngày là chuyển ngay, không cần bấm nút), mỗi nhân viên đang làm một thẻ có ba nút Ca sáng, Ca chiều, Off.
 - Tích ca thì hiện ô giờ tự điền `shifts.default_hours` (sửa được) và ô ghi chú. Tích Off thì bỏ các ca, tích ca thì bỏ Off.
 - `getDayEntries(date)` (đọc): trả `{ date, defaultHours, rows }`, mỗi dòng có `off`, `morning`, `afternoon`.
 - `saveDayEntries` (Action, chỉ chủ quán): lưu cả ngày cho mọi người trong form. Kiểu thay thế: xóa dòng cũ của những người đó trong ngày rồi ghi mới, trong một giao dịch. Người không tích gì thì không có dòng nào (xóa chấm công cũ của ngày đó).

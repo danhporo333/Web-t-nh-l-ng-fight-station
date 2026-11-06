@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { fail, ok, type ActionResult } from "@/lib/result";
-import { previousMonth } from "@/shared/utils/month";
+import { currentMonth, previousMonth } from "@/shared/utils/month";
 import {
   findActiveStaff,
   findRatesByMonth,
@@ -83,4 +83,12 @@ export async function saveRatesFor(
 export async function getRatesForMonth(month: string, userId?: number): Promise<(RatePair & { userId: number })[]> {
   const rows = await findRatesByMonth(month);
   return rows.filter((r) => userId === undefined || r.userId === userId);
+}
+
+// Tự tạo mức lương còn thiếu, chỉ cho tháng hiện tại (giờ Việt Nam). Các tháng khác (đã qua hoặc chưa tới)
+// vẫn để chủ quán tự bấm tạo, tránh sinh mức lương lịch sử âm thầm. Lỗi cấu hình ca không làm hỏng trang.
+export async function autoEnsureMonthRates(month: string, now: Date = new Date()): Promise<{ created: number }> {
+  if (month !== currentMonth(now)) return { created: 0 };
+  const result = await ensureMonthRatesFor(month);
+  return { created: result.success ? result.data.created : 0 };
 }

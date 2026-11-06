@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDateLabel, shiftDate } from "@/shared/utils/date";
+import { DateJumpInput } from "./date-jump-input";
 
 type DatePickerProps = {
   basePath: string;
@@ -21,12 +22,7 @@ export function DatePicker({ basePath, date }: DatePickerProps) {
           ›
         </Link>
       </div>
-      <form action={basePath} method="get" className="flex gap-2">
-        <input type="date" name="date" defaultValue={date} required className="input" />
-        <button type="submit" className="btn-secondary w-auto shrink-0">
-          Xem
-        </button>
-      </form>
+      <DateJumpInput basePath={basePath} date={date} />
     </div>
   );
 }

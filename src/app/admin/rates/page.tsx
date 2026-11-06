@@ -1,5 +1,5 @@
 import { requireOwner } from "@/lib/auth";
-import { EnsureRatesForm, RatesForm, getMonthlyRates } from "@/features/rates";
+import { EnsureRatesForm, RatesForm, autoEnsureMonthRates, getMonthlyRates } from "@/features/rates";
 import { MonthPicker } from "@/shared/components/month-picker";
 import { currentMonth, formatMonthLabel, isValidMonth, previousMonth } from "@/shared/utils/month";
 
@@ -7,6 +7,7 @@ export default async function AdminRatesPage({ searchParams }: PageProps<"/admin
   await requireOwner();
   const { month: monthParam } = await searchParams;
   const month = isValidMonth(monthParam) ? monthParam : currentMonth();
+  await autoEnsureMonthRates(month);
   const rows = await getMonthlyRates(month);
 
   const missing = rows.filter((r) => r.morningRate === null).length;
