@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { requireOwner } from "@/lib/auth";
+import { PendingLink } from "@/shared/components/pending-link";
 
 const SECTIONS = [
   { href: "/admin/stats", title: "Thống kê", text: "Ngày nghỉ, lỗi và tiền phạt của từng người theo tháng." },
@@ -22,10 +22,10 @@ export default async function AdminPage() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {SECTIONS.map((s) => (
-          <Link key={s.href} href={s.href} className="card block transition hover:border-red-300 hover:shadow-md">
+          <PendingLink key={s.href} href={s.href} className="card block transition hover:border-red-300 hover:shadow-md">
             <h2 className="font-semibold text-stone-900">{s.title}</h2>
             <p className="mt-1 text-sm text-stone-600">{s.text}</p>
-          </Link>
+          </PendingLink>
         ))}
       </div>
     </main>
