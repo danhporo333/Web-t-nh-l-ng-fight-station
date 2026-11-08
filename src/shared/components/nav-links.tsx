@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { PendingLink } from "./pending-link";
 
 type NavItem = { href: string; label: string };
 
@@ -24,10 +24,10 @@ export function NavLinks({ items, homeHref }: NavLinksProps) {
       {items.map((item) => {
         const active = isActive(pathname, item.href, homeHref);
         return (
-          <Link
+          <PendingLink
             key={item.href}
             href={item.href}
-            aria-current={active ? "page" : undefined}
+            ariaCurrent={active ? "page" : undefined}
             className={
               active
                 ? "whitespace-nowrap rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-700"
@@ -35,7 +35,7 @@ export function NavLinks({ items, homeHref }: NavLinksProps) {
             }
           >
             {item.label}
-          </Link>
+          </PendingLink>
         );
       })}
     </nav>

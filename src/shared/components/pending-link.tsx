@@ -35,11 +35,13 @@ type PendingLinkProps = {
   className?: string;
   // Chờ bấy nhiêu mili giây (hiện vòng xoay) rồi mới chuyển trang. Mặc định chuyển ngay.
   delayMs?: number;
+  // Đánh dấu trang hiện tại cho trình đọc màn hình (ví dụ tab đang chọn)
+  ariaCurrent?: "page";
   children: ReactNode;
 };
 
 // Liên kết có vòng xoay giữa màn hình và chặn bấm lặp trong lúc chuyển trang.
-export function PendingLink({ href, className = "", delayMs = 0, children }: PendingLinkProps) {
+export function PendingLink({ href, className = "", delayMs = 0, ariaCurrent, children }: PendingLinkProps) {
   const router = useRouter();
   const [waiting, setWaiting] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -67,7 +69,8 @@ export function PendingLink({ href, className = "", delayMs = 0, children }: Pen
       href={href}
       prefetch={false}
       onClick={handleClick}
-      className={`relative inline-flex items-center gap-2 ${className}`}
+      aria-current={ariaCurrent}
+      className={`relative ${className}`}
     >
       {children}
       <PendingIndicator waiting={waiting} />
