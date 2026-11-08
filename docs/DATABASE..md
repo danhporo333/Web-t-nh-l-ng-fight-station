@@ -98,6 +98,20 @@ Quy tắc nghiệp vụ:
 - Ngày Off: `is_off = true`, `shift_id` trống, `hours = 0`.
 - Một ngày không được vừa Off vừa có ca. Ứng dụng phải chặn.
 
+## Bảng `holiday_days`
+
+Ngày lễ do chủ quán đánh dấu. Có dòng nghĩa là lương ca của ngày đó nhân đôi. Không có dòng nghĩa là ngày thường.
+
+| Cột | Kiểu | Ràng buộc | Ghi chú |
+| --- | --- | --- | --- |
+| id | INT | khóa chính, tự tăng | |
+| work_date | DATE | duy nhất, bắt buộc | Ngày lễ. Khớp với `work_entries.work_date` (ngày bắt đầu ca) |
+| note | VARCHAR(255) | bắt buộc | Tên ngày lễ, ví dụ "Giỗ Tổ Hùng Vương" |
+
+Quy tắc nghiệp vụ:
+- Tích ô "Ngày lễ" thì tạo hoặc cập nhật dòng. Bỏ tích thì xóa dòng.
+- Hệ số nhân đôi cố định là 2, không lưu trong bảng.
+
 ## Bảng `adjustments`
 
 Thưởng và phạt.
@@ -124,8 +138,12 @@ Với một nhân viên trong tháng `M`:
 giờ_sáng   = SUM(hours) của work_entries có shift_id = MORNING, is_off = false, work_date trong tháng M
 giờ_chiều  = SUM(hours) của work_entries có shift_id = AFTERNOON, is_off = false, work_date trong tháng M
 
-lương_sáng  = giờ_sáng  × monthly_rates.morning_rate
-lương_chiều = giờ_chiều × monthly_rates.afternoon_rate
+giờ_lễ_sáng  = phần giờ sáng ở trên có work_date nằm trong holiday_days
+giờ_lễ_chiều = phần giờ chiều ở trên có work_date nằm trong holiday_days
+
+lương_sáng  = (giờ_sáng  + giờ_lễ_sáng)  × monthly_rates.morning_rate
+lương_chiều = (giờ_chiều + giờ_lễ_chiều) × monthly_rates.afternoon_rate
+(giờ ngày lễ được cộng thêm một lần, nên tổng là ×2. Thưởng, phạt, ăn uống không nhân đôi)
 tổng_ca     = lương_sáng + lương_chiều
 
 thưởng = SUM(amount) của adjustments type = BONUS, date trong tháng M

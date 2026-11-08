@@ -29,7 +29,19 @@ export const dayEntrySchema = z.object({
   afternoon: shiftSchema.optional(),
 });
 
+// Ngày lễ: null nếu không tích, { note } nếu tích. Bắt buộc ghi tên lễ khi đã tích.
+export const holidaySchema = z
+  .object({
+    note: z
+      .string()
+      .trim()
+      .min(1, "Hãy ghi tên ngày lễ")
+      .max(255, "Tên ngày lễ tối đa 255 ký tự"),
+  })
+  .nullable();
+
 export const saveDayEntriesSchema = z.object({
   date: dateSchema,
   entries: z.array(dayEntrySchema).min(1, "Không có nhân viên nào để lưu"),
+  holiday: holidaySchema.optional(),
 });

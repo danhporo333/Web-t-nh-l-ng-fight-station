@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { calculatePay, calculateShiftPay } from "../utils";
 
-const base = { morningHours: 0, afternoonHours: 0, morningRate: 26000, afternoonRate: 28000, bonus: 0, penalty: 0, meal: 0 };
+const base = { morningHours: 0, afternoonHours: 0, morningHolidayHours: 0, afternoonHolidayHours: 0, morningRate: 26000, afternoonRate: 28000, bonus: 0, penalty: 0, meal: 0 };
 
 describe("calculatePay", () => {
   it("chỉ ca sáng", () => {

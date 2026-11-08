@@ -7,8 +7,9 @@ Bảng lương tháng và chi tiết từng ngày. Hàm thuần calculatePay. Đ
 - Bấm thẻ nhân viên: `PayrollCardLink` (client, `useLinkStatus`, `prefetch={false}`) phủ lớp mờ có vòng xoay "Đang mở..." lên thẻ và chặn bấm thêm cho tới khi trang chi tiết mở xong.
 - `getMonthlyPayroll(month)` và `getStaffMonthDetail(userId, month)` (đọc). Không kiểm quyền bên trong: trang của chủ quán gọi `requireOwner()`; feature `me` sẽ gọi `getStaffMonthDetail` với `userId` lấy từ phiên.
 - Dữ liệu lấy qua `index.ts` của các feature khác: `getMonthHours`, `getUserMonthDays` (attendance), `getRatesForMonth` (rates), `getAdjustmentTotals`, `listAdjustments` (adjustments). Payroll chỉ tự đọc bảng `users` để lấy tên.
-- `calculatePay` (utils.ts, hàm thuần, có test): `shiftPay = round(giờ sáng × mức sáng + giờ chiều × mức chiều)`, `netPay = shiftPay + thưởng − phạt − ăn uống`. Cộng giờ trước, nhân mức và làm tròn một lần.
+- `calculatePay` (utils.ts, hàm thuần, có test): `shiftPay = round((giờ sáng + giờ sáng lễ) × mức sáng + (giờ chiều + giờ chiều lễ) × mức chiều)`, `netPay = shiftPay + thưởng − phạt − ăn uống`. Giờ lễ là phần giờ đã nằm trong giờ ca nhưng rơi vào ngày lễ, được cộng thêm một lần (×2). Cộng giờ trước, nhân mức và làm tròn một lần.
 - Nhân viên có mặt trong bảng: mọi người đang làm (kể cả 0 giờ) và người đã nghỉ việc nhưng có chấm công hoặc thưởng phạt trong tháng.
 - Thiếu mức lương (RATE_002): hàm đọc không ném lỗi. Nếu nhân viên có giờ làm mà tháng chưa có dòng mức thì `missingRate = true`, `shiftPay` và `netPay` là `null`, giao diện báo và dẫn tới `/admin/rates`. Tổng cả tháng không cộng người này. Không có giờ làm thì thiếu mức vẫn cho 0đ.
-- Tiền từng ngày ở trang chi tiết là `round(giờ × mức)` của từng ca, chỉ để xem. Tổng tháng tính trên tổng giờ nên có thể lệch vài đồng với tổng các dòng ngày khi mức lương không tròn trăm.
+- Ngày lễ: trang chi tiết hiện "Ngày lễ ×2 · tên lễ" và tiền từng ca của ngày đó là `round(giờ × mức × 2)`.
+- Tiền từng ngày ở trang chi tiết là `round(giờ × mức)` của từng ca (nhân 2 nếu là ngày lễ), chỉ để xem. Tổng tháng tính trên tổng giờ nên có thể lệch vài đồng với tổng các dòng ngày khi mức lương không tròn trăm.
 - Ca chiều tính vào ngày bắt đầu ca (ví dụ ca chiều 31/10 vào lương tháng 10). Tháng lọc theo khoảng `>= đầu tháng` và `< đầu tháng sau` (`monthRange`).

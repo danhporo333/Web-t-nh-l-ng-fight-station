@@ -6,6 +6,10 @@ vi.mock("../queries", () => ({
   findShifts: vi.fn(),
   findEntriesByDate: vi.fn(),
   replaceDayEntries: vi.fn(),
+  findHolidayByDate: vi.fn(),
+  findHolidaysInMonth: vi.fn(),
+  replaceHolidayDay: vi.fn(),
+  sumHoursByUserAndShiftOnDates: vi.fn(),
 }));
 
 import * as queries from "../queries";

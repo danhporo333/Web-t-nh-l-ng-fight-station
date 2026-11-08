@@ -84,6 +84,15 @@ model WorkEntry {
   @@map("work_entries")
 }
 
+// Ngày lễ: có dòng ở đây nghĩa là lương ca của ngày đó nhân đôi. Chủ quán tự tích và ghi tên lễ.
+model HolidayDay {
+  id       Int      @id @default(autoincrement())
+  workDate DateTime @unique @map("work_date") @db.Date
+  note     String   @db.VarChar(255)
+
+  @@map("holiday_days")
+}
+
 model Adjustment {
   id       Int            @id @default(autoincrement())
   userId   Int            @map("user_id")

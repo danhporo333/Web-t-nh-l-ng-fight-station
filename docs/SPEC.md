@@ -39,6 +39,7 @@ Nếu các file lệch nhau: `ARCHITECTURE.md` quyết định cấu trúc thư 
 - Một nhân viên có thể làm **cả hai ca trong cùng một ngày**.
 - Ca chiều tính vào **ngày bắt đầu ca**, kể cả khi kết thúc lúc 2h sáng ngày hôm sau. Ví dụ ca chiều 31/10 tính vào lương tháng 10.
 - Ngày nghỉ được đánh dấu **Off**. Ngày Off không được tính lương.
+- **Ngày lễ:** chủ quán tích ô "Ngày lễ" ở trang Chấm công và ghi tên lễ. Khi đó lương ca của mọi người làm ngày đó được **nhân đôi**. Ngày được tính theo ngày bắt đầu ca, nên ca chiều 01/05 kết thúc 02/05 vẫn nhân đôi. Chỉ lương ca được nhân đôi, thưởng, phạt và ăn uống không đổi. Ngày Off không được tính lương nên không liên quan.
 
 ## 3. Công thức tính lương
 

@@ -56,7 +56,7 @@ describe("saveDayEntries", () => {
         { userId: 3, off: false, morning: { hours: 8.5, note: undefined }, afternoon: { hours: 10, note: undefined } },
         { userId: 4, off: true },
         { userId: 5, off: false },
-      ]);
+      ], null);
     });
   });
 });

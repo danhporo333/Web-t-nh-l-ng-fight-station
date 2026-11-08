@@ -6,6 +6,10 @@ vi.mock("../queries", () => ({
   findShifts: vi.fn(),
   findEntriesByDate: vi.fn(),
   replaceDayEntries: vi.fn(),
+  findHolidayByDate: vi.fn(),
+  findHolidaysInMonth: vi.fn(),
+  replaceHolidayDay: vi.fn(),
+  sumHoursByUserAndShiftOnDates: vi.fn(),
   sumHoursByUserAndShift: vi.fn(),
   findUserEntriesInMonth: vi.fn(),
 }));
@@ -17,6 +21,8 @@ const d = (v: number) => ({ toNumber: () => v, valueOf: () => v, toString: () =>
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(queries.findHolidaysInMonth).mockResolvedValue([] as never);
+  vi.mocked(queries.sumHoursByUserAndShiftOnDates).mockResolvedValue([] as never);
   vi.mocked(queries.findShifts).mockResolvedValue([
     { id: 1, code: "MORNING", defaultHours: 8.5 },
     { id: 2, code: "AFTERNOON", defaultHours: 10 },
@@ -34,8 +40,8 @@ describe("getMonthHours", () => {
     const r = await getMonthHours("2026-11");
 
     expect(r).toEqual([
-      { userId: 3, morningHours: 22.5, afternoonHours: 10 },
-      { userId: 4, morningHours: 8.5, afternoonHours: 0 },
+      { userId: 3, morningHours: 22.5, afternoonHours: 10, morningHolidayHours: 0, afternoonHolidayHours: 0 },
+      { userId: 4, morningHours: 8.5, afternoonHours: 0, morningHolidayHours: 0, afternoonHolidayHours: 0 },
     ]);
   });
 
@@ -45,7 +51,7 @@ describe("getMonthHours", () => {
       { userId: 4, shiftId: 1, _sum: { hours: null } },
     ] as never);
 
-    expect(await getMonthHours("2026-11")).toEqual([{ userId: 4, morningHours: 0, afternoonHours: 0 }]);
+    expect(await getMonthHours("2026-11")).toEqual([{ userId: 4, morningHours: 0, afternoonHours: 0, morningHolidayHours: 0, afternoonHolidayHours: 0 }]);
   });
 
   it("truyền userId xuống tầng dữ liệu", async () => {
@@ -63,8 +69,8 @@ describe("getUserMonthDays", () => {
     ] as never);
 
     expect(await getUserMonthDays(3, "2026-10")).toEqual([
-      { date: "2026-10-31", off: false, shift: "AFTERNOON", hours: 10, note: null },
-      { date: "2026-11-01", off: true, shift: null, hours: 0, note: null },
+      { date: "2026-10-31", off: false, shift: "AFTERNOON", hours: 10, note: null , holiday: null },
+      { date: "2026-11-01", off: true, shift: null, hours: 0, note: null , holiday: null },
     ]);
   });
 });

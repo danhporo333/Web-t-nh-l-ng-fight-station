@@ -12,6 +12,8 @@ export type DayEntryRow = {
 export type DayView = {
   date: string;
   defaultHours: { morning: number; afternoon: number };
+  // Tên ngày lễ nếu ngày này được đánh dấu lễ (lương ca nhân đôi), null nếu không
+  holiday: string | null;
   rows: DayEntryRow[];
 };
 
@@ -25,7 +27,14 @@ export type DayEntryInput = {
 };
 
 // Tổng giờ của một nhân viên trong tháng, không tính ngày Off.
-export type MonthHours = { userId: number; morningHours: number; afternoonHours: number };
+// holidayHours là phần giờ rơi vào ngày lễ (đã nằm trong morningHours/afternoonHours), để tính thêm một lần.
+export type MonthHours = {
+  userId: number;
+  morningHours: number;
+  afternoonHours: number;
+  morningHolidayHours: number;
+  afternoonHolidayHours: number;
+};
 
 // Một dòng chấm công của một ngày (ca hoặc Off).
 export type DayRecord = {
@@ -34,6 +43,8 @@ export type DayRecord = {
   shift: "MORNING" | "AFTERNOON" | null;
   hours: number;
   note: string | null;
+  // Tên ngày lễ của ngày này, null nếu không phải ngày lễ
+  holiday: string | null;
 };
 
 // Các ngày Off của một nhân viên trong tháng, tăng dần theo ngày.

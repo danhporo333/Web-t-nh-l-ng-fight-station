@@ -85,6 +85,7 @@ Mã có dạng `[FEATURE]_[SỐ]`.
 | `ATT_001` | Số giờ không hợp lệ (nhỏ hơn 0 hoặc lớn hơn 24) |
 | `ATT_002` | Ngày đã Off nhưng có ca, hoặc có ca nhưng đánh dấu Off |
 | `ATT_003` | Nhân viên đã nghỉ việc, không chấm công được |
+| `ATT_004` | Đã tích ngày lễ nhưng chưa ghi tên ngày lễ |
 | `ADJ_001` | Số tiền phải là số nguyên dương |
 | `ADJ_002` | Thiếu lý do |
 | `ADJ_003` | Không tìm thấy khoản thưởng phạt |

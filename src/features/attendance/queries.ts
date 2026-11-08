@@ -28,13 +28,17 @@ export function findEntriesByDate(date: string) {
   });
 }
 
-export type NewEntry = {
-  userId: number;
-  shiftId: number | null;
-  hours: number;
-  isOff: boolean;
-  note: string | null;
-};
+export function findHolidayByDate(date: string) {
+  return prisma.holidayDay.findUnique({ where: { workDate: dateToDb(date) }, select: { note: true } });
+}
+
+export function findHolidaysInMonth(month: string) {
+  const { start, end } = monthRange(month);
+  return prisma.holidayDay.findMany({
+    where: { workDate: { gte: start, lt: end } },
+    select: { workDate: true, note: true },
+  });
+}
 
 // Ghi theo kiểu thay thế: xóa dòng cũ của các người này trong ngày rồi ghi mới, trong một giao dịch.
 export function replaceDayEntries(date: string, userIds: number[], entries: NewEntry[]) {
@@ -45,6 +49,38 @@ export function replaceDayEntries(date: string, userIds: number[], entries: NewE
   ]);
 }
 
+// Ngày lễ: { note } thì tạo hoặc cập nhật dòng, null thì xóa dòng (ngày không còn là lễ).
+export type HolidayInput = { note: string } | null;
+
+export function replaceHolidayDay(date: string, holiday: HolidayInput) {
+  const workDate = dateToDb(date);
+  if (!holiday) return prisma.holidayDay.deleteMany({ where: { workDate } });
+  return prisma.holidayDay.upsert({
+    where: { workDate },
+    create: { workDate, note: holiday.note },
+    update: { note: holiday.note },
+  });
+}
+
+// Tổng giờ theo ca của những ngày cho trước (dùng cho ngày lễ).
+export function sumHoursByUserAndShiftOnDates(dates: Date[], userId?: number) {
+  if (dates.length === 0) return Promise.resolve([]);
+  return prisma.workEntry.groupBy({
+    by: ["userId", "shiftId"],
+    where: { isOff: false, workDate: { in: dates }, ...(userId ? { userId } : {}) },
+    _sum: { hours: true },
+  });
+}
+
+export type NewEntry = {
+  userId: number;
+  shiftId: number | null;
+  hours: number;
+  isOff: boolean;
+  note: string | null;
+};
+
+// Ghi theo kiểu thay thế: xóa dòng cũ của các người này trong ngày rồi ghi mới, trong một giao dịch.
 export function sumHoursByUserAndShift(month: string, userId?: number) {
   const { start, end } = monthRange(month);
   return prisma.workEntry.groupBy({

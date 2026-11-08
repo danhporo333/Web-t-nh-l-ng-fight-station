@@ -2,21 +2,27 @@ import { fail, ok, type ActionResult } from "@/lib/result";
 import {
   findActiveStaff,
   findEntriesByDate,
+  findHolidayByDate,
+  findHolidaysInMonth,
   findOffEntriesInMonth,
   findShifts,
   findStaffByIds,
   findUserEntriesInMonth,
   replaceDayEntries,
+  replaceHolidayDay,
   sumHoursByUserAndShift,
+  sumHoursByUserAndShiftOnDates,
+  type HolidayInput,
   type NewEntry,
 } from "./queries";
 import type { DayEntryInput, DayEntryRow, DayRecord, DayView, MonthHours, OffDays, ShiftEntry } from "./types";
 
 export async function getDayEntries(date: string): Promise<DayView> {
-  const [staff, entries, shifts] = await Promise.all([
+  const [staff, entries, shifts, holiday] = await Promise.all([
     findActiveStaff(),
     findEntriesByDate(date),
     findShifts(),
+    findHolidayByDate(date),
   ]);
   const hoursOf = (code: "MORNING" | "AFTERNOON") =>
     Number(shifts.find((s) => s.code === code)?.defaultHours ?? 0);
@@ -40,13 +46,16 @@ export async function getDayEntries(date: string): Promise<DayView> {
   return {
     date,
     defaultHours: { morning: hoursOf("MORNING"), afternoon: hoursOf("AFTERNOON") },
+    holiday: holiday?.note ?? null,
     rows,
   };
 }
 
+// holiday: { note } nếu ngày này là ngày lễ (lương ca nhân đôi), null nếu không, undefined thì giữ nguyên ngày lễ cũ.
 export async function saveDayEntriesFor(
   date: string,
   entries: DayEntryInput[],
+  holiday?: HolidayInput,
 ): Promise<ActionResult<{ saved: number }>> {
   const ids = entries.map((e) => e.userId);
   if (new Set(ids).size !== ids.length) {
@@ -83,35 +92,74 @@ export async function saveDayEntriesFor(
   });
 
   await replaceDayEntries(date, ids, rows);
+  if (holiday !== undefined) await replaceHolidayDay(date, holiday);
   return ok({ saved: entries.length });
 }
 
 // Tổng giờ sáng, chiều của từng nhân viên trong tháng. Ca chiều tính theo ngày bắt đầu ca.
+// Giờ rơi vào ngày lễ được tách riêng (holiday...Hours) để payroll tính thêm một lần, thành ×2.
 export async function getMonthHours(month: string, userId?: number): Promise<MonthHours[]> {
-  const [sums, shifts] = await Promise.all([sumHoursByUserAndShift(month, userId), findShifts()]);
+  const [sums, holidays, shifts] = await Promise.all([
+    sumHoursByUserAndShift(month, userId),
+    findHolidaysInMonth(month),
+    findShifts(),
+  ]);
+  const holidaySums = await sumHoursByUserAndShiftOnDates(
+    holidays.map((h) => h.workDate),
+    userId,
+  );
   const codeById = new Map(shifts.map((s) => [s.id, s.code]));
   const byUser = new Map<number, MonthHours>();
+  const entryFor = (id: number): MonthHours => {
+    const existing = byUser.get(id);
+    if (existing) return existing;
+    const created: MonthHours = {
+      userId: id,
+      morningHours: 0,
+      afternoonHours: 0,
+      morningHolidayHours: 0,
+      afternoonHolidayHours: 0,
+    };
+    byUser.set(id, created);
+    return created;
+  };
+
   for (const sum of sums) {
     const code = sum.shiftId === null ? undefined : codeById.get(sum.shiftId);
     if (!code) continue;
-    const entry = byUser.get(sum.userId) ?? { userId: sum.userId, morningHours: 0, afternoonHours: 0 };
+    const entry = entryFor(sum.userId);
     const hours = Number(sum._sum.hours ?? 0);
     if (code === "MORNING") entry.morningHours += hours;
     else entry.afternoonHours += hours;
-    byUser.set(sum.userId, entry);
+  }
+  for (const sum of holidaySums) {
+    const code = sum.shiftId === null ? undefined : codeById.get(sum.shiftId);
+    if (!code) continue;
+    const entry = entryFor(sum.userId);
+    const hours = Number(sum._sum.hours ?? 0);
+    if (code === "MORNING") entry.morningHolidayHours += hours;
+    else entry.afternoonHolidayHours += hours;
   }
   return [...byUser.values()];
 }
 
 export async function getUserMonthDays(userId: number, month: string): Promise<DayRecord[]> {
-  const rows = await findUserEntriesInMonth(userId, month);
-  return rows.map((r) => ({
-    date: r.workDate.toISOString().slice(0, 10),
-    off: r.isOff,
-    shift: r.shift?.code ?? null,
-    hours: Number(r.hours),
-    note: r.note,
-  }));
+  const [rows, holidays] = await Promise.all([
+    findUserEntriesInMonth(userId, month),
+    findHolidaysInMonth(month),
+  ]);
+  const holidayNote = new Map(holidays.map((h) => [h.workDate.toISOString().slice(0, 10), h.note]));
+  return rows.map((r) => {
+    const date = r.workDate.toISOString().slice(0, 10);
+    return {
+      date,
+      off: r.isOff,
+      shift: r.shift?.code ?? null,
+      hours: Number(r.hours),
+      note: r.note,
+      holiday: holidayNote.get(date) ?? null,
+    };
+  });
 }
 
 // Các ngày Off của từng nhân viên trong tháng (chỉ người có ngày Off). Mỗi ngày tối đa một dòng Off.

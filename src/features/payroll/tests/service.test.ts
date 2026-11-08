@@ -26,7 +26,7 @@ beforeEach(() => {
 
 describe("getMonthlyPayroll", () => {
   it("tính lương theo giờ, mức, thưởng và phạt của từng người", async () => {
-    vi.mocked(getMonthHours).mockResolvedValue([{ userId: 3, morningHours: 14, afternoonHours: 10 }]);
+    vi.mocked(getMonthHours).mockResolvedValue([{ userId: 3, morningHours: 14, afternoonHours: 10, morningHolidayHours: 0, afternoonHolidayHours: 0 }]);
     vi.mocked(getRatesForMonth).mockResolvedValue([{ userId: 3, morningRate: 26000, afternoonRate: 28000 }]);
     vi.mocked(getAdjustmentTotals).mockResolvedValue([{ userId: 3, bonus: 50000, penalty: 20000, meal: 30000 }]);
     vi.mocked(findStaffForPayroll).mockResolvedValue([hoang]);
@@ -46,8 +46,8 @@ describe("getMonthlyPayroll", () => {
 
   it("có giờ làm nhưng chưa có mức lương: đánh dấu thiếu, không tính tiền, không cộng vào tổng", async () => {
     vi.mocked(getMonthHours).mockResolvedValue([
-      { userId: 3, morningHours: 8.5, afternoonHours: 0 },
-      { userId: 4, morningHours: 8.5, afternoonHours: 0 },
+      { userId: 3, morningHours: 8.5, afternoonHours: 0, morningHolidayHours: 0, afternoonHolidayHours: 0 },
+      { userId: 4, morningHours: 8.5, afternoonHours: 0, morningHolidayHours: 0, afternoonHolidayHours: 0 },
     ]);
     vi.mocked(getRatesForMonth).mockResolvedValue([{ userId: 3, morningRate: 26000, afternoonRate: 28000 }]);
     vi.mocked(findStaffForPayroll).mockResolvedValue([hoang, lan]);
@@ -67,7 +67,7 @@ describe("getMonthlyPayroll", () => {
   });
 
   it("yêu cầu cả người đã nghỉ việc có dữ liệu trong tháng", async () => {
-    vi.mocked(getMonthHours).mockResolvedValue([{ userId: 5, morningHours: 8, afternoonHours: 0 }]);
+    vi.mocked(getMonthHours).mockResolvedValue([{ userId: 5, morningHours: 8, afternoonHours: 0, morningHolidayHours: 0, afternoonHolidayHours: 0 }]);
     vi.mocked(getAdjustmentTotals).mockResolvedValue([{ userId: 4, bonus: 1000, penalty: 0, meal: 0 }]);
     vi.mocked(getRatesForMonth).mockResolvedValue([{ userId: 5, morningRate: 24000, afternoonRate: 26000 }]);
     vi.mocked(findStaffForPayroll).mockResolvedValue([lan, minh]);
@@ -95,14 +95,14 @@ describe("getStaffMonthDetail", () => {
 
   it("gom từng ngày: hai ca trong một ngày, ngày Off, tiền từng ngày", async () => {
     vi.mocked(findStaffById).mockResolvedValue(hoang);
-    vi.mocked(getMonthHours).mockResolvedValue([{ userId: 3, morningHours: 22.5, afternoonHours: 10 }]);
+    vi.mocked(getMonthHours).mockResolvedValue([{ userId: 3, morningHours: 22.5, afternoonHours: 10, morningHolidayHours: 0, afternoonHolidayHours: 0 }]);
     vi.mocked(getRatesForMonth).mockResolvedValue([{ userId: 3, morningRate: 26000, afternoonRate: 28000 }]);
     vi.mocked(getUserMonthDays).mockResolvedValue([
-      { date: "2026-11-01", off: false, shift: "MORNING", hours: 8.5, note: null },
-      { date: "2026-11-02", off: false, shift: "MORNING", hours: 5.5, note: "về sớm lúc 13h" },
-      { date: "2026-11-03", off: false, shift: "MORNING", hours: 8.5, note: null },
-      { date: "2026-11-03", off: false, shift: "AFTERNOON", hours: 10, note: null },
-      { date: "2026-11-04", off: true, shift: null, hours: 0, note: null },
+      { date: "2026-11-01", off: false, shift: "MORNING", hours: 8.5, note: null , holiday: null },
+      { date: "2026-11-02", off: false, shift: "MORNING", hours: 5.5, note: "về sớm lúc 13h" , holiday: null },
+      { date: "2026-11-03", off: false, shift: "MORNING", hours: 8.5, note: null , holiday: null },
+      { date: "2026-11-03", off: false, shift: "AFTERNOON", hours: 10, note: null , holiday: null },
+      { date: "2026-11-04", off: true, shift: null, hours: 0, note: null , holiday: null },
     ]);
 
     const d = await getStaffMonthDetail(3, "2026-11");
@@ -116,8 +116,8 @@ describe("getStaffMonthDetail", () => {
 
   it("thiếu mức lương thì tiền từng ngày là null", async () => {
     vi.mocked(findStaffById).mockResolvedValue(lan);
-    vi.mocked(getMonthHours).mockResolvedValue([{ userId: 4, morningHours: 8.5, afternoonHours: 0 }]);
-    vi.mocked(getUserMonthDays).mockResolvedValue([{ date: "2026-11-01", off: false, shift: "MORNING", hours: 8.5, note: null }]);
+    vi.mocked(getMonthHours).mockResolvedValue([{ userId: 4, morningHours: 8.5, afternoonHours: 0, morningHolidayHours: 0, afternoonHolidayHours: 0 }]);
+    vi.mocked(getUserMonthDays).mockResolvedValue([{ date: "2026-11-01", off: false, shift: "MORNING", hours: 8.5, note: null , holiday: null }]);
 
     const d = await getStaffMonthDetail(4, "2026-11");
 

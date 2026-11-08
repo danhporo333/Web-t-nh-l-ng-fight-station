@@ -31,18 +31,24 @@ export async function saveDayEntries(
     afternoon: shiftFrom(formData, "afternoon", id),
   }));
 
-  const parsed = saveDayEntriesSchema.safeParse({ date: text(formData, "date"), entries });
+  // Ô "holiday" tích thì gửi kèm ghi chú "holidayNote" (tên ngày lễ), không tích thì không phải ngày lễ.
+  const holiday = formData.get("holiday") === "on" ? { note: text(formData, "holidayNote") } : null;
+
+  const parsed = saveDayEntriesSchema.safeParse({ date: text(formData, "date"), entries, holiday });
   if (!parsed.success) {
     const issues = parsed.error.issues;
     if (issues.some((i) => i.path[0] === "date")) {
       return fail("COMMON_002", "Ngày sai định dạng", parsed.error.flatten());
+    }
+    if (issues.some((i) => i.path[0] === "holiday")) {
+      return fail("ATT_004", issues[0]?.message ?? "Thiếu tên ngày lễ", parsed.error.flatten());
     }
     const hoursIssue = issues.find((i) => i.path.includes("hours"));
     if (hoursIssue) return fail("ATT_001", hoursIssue.message, parsed.error.flatten());
     return fail("COMMON_001", issues[0]?.message ?? "Dữ liệu không hợp lệ", parsed.error.flatten());
   }
 
-  const result = await saveDayEntriesFor(parsed.data.date, parsed.data.entries);
+  const result = await saveDayEntriesFor(parsed.data.date, parsed.data.entries, parsed.data.holiday);
   if (result.success) {
     revalidatePath("/admin/attendance");
     revalidatePath("/admin/payroll");

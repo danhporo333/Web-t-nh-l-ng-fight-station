@@ -12,7 +12,12 @@ import type {
 import { calculatePay, calculateShiftPay } from "./utils";
 
 type Staff = { id: number; username: string; fullName: string; isActive: boolean };
-type Hours = { morningHours: number; afternoonHours: number };
+type Hours = {
+  morningHours: number;
+  afternoonHours: number;
+  morningHolidayHours: number;
+  afternoonHolidayHours: number;
+};
 type Rates = { morningRate: number; afternoonRate: number } | undefined;
 type Totals = { bonus: number; penalty: number; meal: number } | undefined;
 
@@ -45,6 +50,8 @@ function buildRow(staff: Staff, hours: Hours | undefined, rates: Rates, totals: 
   const { shiftPay, netPay } = calculatePay({
     morningHours,
     afternoonHours,
+    morningHolidayHours: hours?.morningHolidayHours ?? 0,
+    afternoonHolidayHours: hours?.afternoonHolidayHours ?? 0,
     morningRate: rates?.morningRate ?? 0,
     afternoonRate: rates?.afternoonRate ?? 0,
     bonus,
@@ -109,12 +116,12 @@ export async function getStaffMonthDetail(userId: number, month: string): Promis
 
   const byDate = new Map<string, DayDetail>();
   for (const rec of records) {
-    const day = byDate.get(rec.date) ?? { date: rec.date, off: false, entries: [], pay: 0 };
+    const day = byDate.get(rec.date) ?? { date: rec.date, off: false, holiday: rec.holiday, entries: [], pay: 0 };
     if (rec.off) {
       day.off = true;
     } else if (rec.shift) {
       const shiftRate = rec.shift === "MORNING" ? rate?.morningRate : rate?.afternoonRate;
-      const pay = shiftRate === undefined ? null : calculateShiftPay(rec.hours, shiftRate);
+      const pay = shiftRate === undefined ? null : calculateShiftPay(rec.hours, shiftRate, rec.holiday !== null);
       day.entries.push({ shift: rec.shift, hours: rec.hours, pay, note: rec.note });
       day.pay = day.pay === null || pay === null ? null : day.pay + pay;
     }

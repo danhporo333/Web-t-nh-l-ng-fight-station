@@ -46,6 +46,8 @@ export type DayShiftDetail = {
 export type DayDetail = {
   date: string;
   off: boolean;
+  // Tên ngày lễ nếu ngày này được nhân đôi, null nếu không
+  holiday: string | null;
   entries: DayShiftDetail[];
   pay: number | null;
 };

@@ -34,6 +34,7 @@ export function StaffMonthDetailView({ detail }: StaffMonthDetailProps) {
               <li key={day.date} className="flex items-start justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-stone-900">{formatDateLabel(day.date)}</p>
+                  {day.holiday && <p className="text-sm font-medium text-amber-700">Ngày lễ ×2 · {day.holiday}</p>}
                   {day.off && <p className="text-sm text-stone-500">Off</p>}
                   {day.entries.map((e) => (
                     <p key={e.shift} className="text-sm text-stone-600">
