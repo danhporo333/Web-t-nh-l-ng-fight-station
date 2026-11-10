@@ -24,6 +24,7 @@ Ghi lại những gì đã setup cho web tính lương Fight Station. Ngày: 202
 - Module lõi: prisma, session, auth, result, proxy
 - Schema: 5 bảng (users, shifts, monthly_rates, work_entries, adjustments), 3 enum. Seed: hai ca mặc định và tài khoản chủ quán
 - Cấu hình: `.env.example`, `.gitignore`, scripts trong `package.json`
+- PWA: `src/app/manifest.ts`, `public/icon-192x192.png`, `public/icon-512x512.png`, `public/apple-icon.png`
 
 ## Đã sửa file có sẵn
 - `next.config.ts`: xóa `cacheComponents` và `partialPrefetching`
@@ -41,7 +42,7 @@ Ghi lại những gì đã setup cho web tính lương Fight Station. Ngày: 202
 | `npx prisma validate` | đạt |
 | `npx tsc --noEmit` | đạt |
 | `npm run lint` | đạt |
-| `npm run build` | đạt (`/`, `/admin`, `/login`, `/me` là dynamic) |
+| `npm run build` | đạt (`/`, `/admin`, `/login`, `/me` là dynamic, `/manifest.webmanifest` là tĩnh) |
 | `npm test` | chưa chạy, chưa có test |
 | `db:push`, `db:seed` | chưa chạy, chưa có MySQL thật |
 

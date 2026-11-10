@@ -168,8 +168,23 @@ Sau khi ghi, gọi `revalidatePath` cho trang liên quan để dữ liệu mới
 | `/admin/shifts` | OWNER | cài đặt ca |
 | `/me` | OWNER, STAFF | lương của tôi |
 | `/change-password` | OWNER, STAFF | đổi mật khẩu |
+| `/manifest.webmanifest` | công khai | web app manifest (PWA) |
+| `/apple-icon.png` | công khai | icon iPhone Home Screen |
+| `/icon-*.png` | công khai | icon Android Home Screen |
 
-`proxy.ts` chặn `/admin/*`, `/me/*` và `/change-password` khi chưa có cookie.
+`proxy.ts` chặn `/admin/*`, `/me/*` và `/change-password` khi chưa có cookie. File tĩnh (`manifest.webmanifest`, icon) luôn truy cập được, không cần đăng nhập.
+
+## 10. PWA (Progressive Web App)
+
+App hỗ trợ cài đặt trên màn hình chính:
+- **Manifest:** `src/app/manifest.ts` tạo `/manifest.webmanifest` tự động, chứa tên, mô tả, icon, màu nền và chủ đạo.
+- **Icon:** Bốn file PNG trong `public/`:
+  - `icon-192x192.png`, `icon-512x512.png`: dành cho Android (purpose: "any" và "maskable").
+  - `apple-icon.png`: dành cho iPhone (qua `appleWebApp.capable`).
+- **Metadata:** `src/app/layout.tsx` xuất `Metadata` và `Viewport`, bao gồm `themeColor`, `appleWebApp` (tên, statusBarStyle).
+- **Không có Service Worker:** App chưa xem được offline vì tránh cache dữ liệu lương nhạy cảm. Nếu cần offline đầy đủ, dùng Serwist nhưng chỉ cache file tĩnh.
+
+**Kiểm tra:** Chạy `npm run build && npm start`, vào DevTools > Application > Manifest xem manifest và icon.
 
 ## 10. Cấu hình và bí mật
 
